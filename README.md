@@ -11,15 +11,10 @@ Library for sharing variables and data through files using inotify events.
 
 ### One line variables
 
-#### Delimited by `=`
+ * Delimited by `=` - For example: `test_var=Hello World`
 
-For example `test_var=Hello World`
-
-#### Delimited by `dec(30)` `hex(1E)` ASCII character (record separator)
-For example `test_var``0x1E``This is useful for special =-+*/!. characters`
+ * Delimited by `dec(30)` `hex(1E)` ASCII character (record separator) - For example: `test_var``0x1E``This is useful for special =-+*/!. characters`
 
 ### Multi-line data
 
-#### Format:
-
-`0x01``data name``0x02``multi \n line \n data and normal characters =-+*/!``0x03`
+ * Format: `0x01``data name``0x02``multi \n line \n data and normal characters =-+*/!``0x03`
