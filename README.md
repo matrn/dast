@@ -3,11 +3,12 @@ dast - data sharing tool using inotify
 
 Library for sharing variables and data through files using inotify events.
 
-## File operations
 
-### Read/Write whole file
+## File formats
 
-### Append to file
+### Whole file
+
+Library will just read or write whole file without formatting.
 
 ### One line variables
 
@@ -18,3 +19,18 @@ Library for sharing variables and data through files using inotify events.
 ### Multi-line data
 
  * Format: `0x01``data name``0x02``multi \n line \n data and normal characters =-+*/!``0x03`
+
+
+## File operations
+
+### Read/Write whole file
+
+### Append to file
+
+### Read one variable
+
+### Write one variable
+
+### Read all varaibles
+
+### Write whole variables
