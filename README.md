@@ -33,4 +33,4 @@ Library will just read or write whole file without formatting.
 
 ### Read all varaibles
 
-### Write whole variables
+### Write all variables
