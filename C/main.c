@@ -46,8 +46,21 @@ int main(int argc, char ** argv){
 
 	dast_open_rw("t1", &file1);
 
-	dast_write("TEST", &file1);
+	//dast_write("TEST", &file1);
+	char * content;
+	//content = malloc(50);
 
+	ssize_t len = 0;
+
+	if((len = dast_read_var(DELM_PRNTD, "test_var", &content, &file1)) != -1){
+		printf("Content >%s<\n", content);
+		printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
+	}
+	else{
+		puts("Unknown variable");
+	}
+	
+	//free(content);
 	while(1){
 		puts("tick");
 		sleep(1);

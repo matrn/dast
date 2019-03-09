@@ -15,6 +15,12 @@ typedef char s_byte;
 typedef void (*callback_func)();
 
 
+#define DELM_PRNTD '='
+#define DELM_UNPRD 30
+
+
+#define DT_UNKNOWN_VAR -1
+#define DT_
 #define BUF_LEN (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
 
 int ifd, len, namlen;  // iwd
@@ -38,8 +44,9 @@ s_byte dast_open_rw(char * filename, FILE ** file);   /* open file for reading a
 s_byte dast_open_ra(char * filename, FILE ** file);   /* open file for reading and appending */
 void dast_close(FILE ** file);
 
-s_byte dast_write(char * data, FILE ** file);
 s_byte dast_read(char ** data, FILE ** file);
+s_byte dast_write(char * data, FILE ** file);
 
+ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE ** file);
 
 #endif

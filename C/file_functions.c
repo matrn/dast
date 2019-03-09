@@ -41,34 +41,59 @@ s_byte dast_write(char * data, FILE ** file){
 }
 
 s_byte dast_read(char ** data, FILE ** file){
+	return 0;
+}
+
+
+ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE ** file){
+	/*
+	 Return values:
+	 -1 = unknown variable
+	 0-X = size
+	 */
+
 	/* variables for getline function */
-	size_t len = 0;
-	ssize_t nread;
-	
+	size_t len = 0;   /* size of alocated buffer */
+	ssize_t nread;   /* for saving length of readed line */
+	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getline will automatically allocate memory for it */
+
+	int pos = 0;   /* for finding correct position of delimiter */
+
+
 	rewind(*file);	/* return to the beginning of file */
-	while((nread = getline(&line, &len, svarFile)) != -1){	/* get number of lines in file */
-		svarLines ++;
-	}
 
-	svarName = malloc(svarLines * sizeof(char *));	
-	svarData = malloc(svarLines * sizeof(char *));
+	while((nread = getline(&line, &len, *file)) != -1){   /* read file line by line */
+		char * name;   /* for saving parsed name */
 
-	rewind(svarFile);	/* return to the beginning of file */
-	while((nread = getline(&line, &len, svarFile)) != -1){	/* read file line by line */
-		if(strlen(line) > 2){	/* check if line has at least 3 chracters (name+=+\n) */
-			svNp = strtok(line, "=");	/* parse svarName */
-			svDp = strtok(NULL, "\n");	/* parse svarData */
+		line[nread -1] = 0;   /* remove newline character from readed line */
 
-			svarName[actLine] = malloc(strlen(svNp));	/* allocate memory */
-			svarData[actLine] = malloc(strlen(svDp));	/* allocate memory */
+		pos = 0;   /* null delimiter position variable */
 
-			strcpy(svarName[actLine], svNp);	/* save name to svarName array */
-			strcpy(svarData[actLine], svDp);	/* save data to svarData array */
+		while(pos < nread){
+			if(line[pos] == delimiter) break;
+			pos ++;
+		}
 
-			//printf("Line %s has %s\n", svarName[actLine], svarData[actLine]);
-			actLine ++;
-		}else{
-			svarLines --;
+		// printf("pos: %d, nread %ld\n", pos, nread);
+		if(pos != nread){   /* check if there is delimiter in the string */
+			name = malloc(pos + 1);   /* allocate memory for name of variable */
+			strncpy(name, line, pos);   /* copy name of the variable to the variable name */
+			
+			if(strcmp(name, var_name) == 0){   /* check if name from file is same as passed var_name */
+				*var_data = line + pos + 1;   /* save data from variable */
+
+
+				free(name);   /* free name variable */
+				free(line);   /* free line variable */
+
+				return nread - pos - 2;   /* length of return str from getline - position of delimiter - delimiter + newline */
+			}
+
+			free(name);   /* free name variable */
 		}
 	}
+
+	free(line);   /* free line variable */
+
+	return -1;
 }
