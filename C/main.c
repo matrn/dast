@@ -35,6 +35,12 @@ int main(int argc, char ** argv){
 	dast_watch("t2", callback_2);
 
 	dast_run();
+
+	while(1){
+		puts("tick");
+		sleep(1);
+	}
+	dast_cleanup();
 	return 0;
 }
 

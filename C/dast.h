@@ -2,6 +2,7 @@
 #define DAST_H_
 
 #include <sys/inotify.h>	/* inotify_* */
+#include <sys/wait.h>   //fork wait
 #include <linux/limits.h>	/* PATH_MAX */
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,5 +30,6 @@ s_byte dast_init();
 void dast_watch(char *, callback_func);
 s_byte dast_watch_dir(char *);
 void dast_run();
+void dast_cleanup();
 
 #endif
