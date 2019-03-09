@@ -66,7 +66,7 @@ void dast_run(){
 				if (iev->mask & IN_Q_OVERFLOW)	 printf("Q_OVERFLOW ");
 				if (iev->mask & IN_UNMOUNT)		 printf("UNMOUNT ");
 
-				if (iev->mask & IN_CLOSE_WRITE){
+				if (iev->mask & IN_CLOSE_WRITE || iev->mask & IN_MODIFY){
 					for(int a = 0; a < dast_watched_size; a ++){
 						if(strcmp(dast_watched_name[a], iev->name) == 0) (*dast_watched_callback[a])();
 					}
@@ -75,9 +75,9 @@ void dast_run(){
 				}
 
 				printf("Cookie: %d Name Len: %d", iev->cookie, iev->len);
-				if (namlen == iev->len) {
+				//if (namlen == iev->len) {
 					printf(" Name: %s", iev->name);
-				}
+				//}
 				puts("");
 				bufp += sizeof(struct inotify_event) + iev->len;
 			}
@@ -92,7 +92,7 @@ void dast_run(){
 }
 
 s_byte dast_watch_dir(char * dir_name){
-	if(inotify_add_watch(ifd, dir_name, IN_CLOSE_WRITE | IN_CLOSE_NOWRITE) < 0){  //IN_ALL_EVENTS
+	if(inotify_add_watch(ifd, dir_name, IN_CLOSE_WRITE | IN_CLOSE_NOWRITE | IN_MODIFY) < 0){  //IN_ALL_EVENTS
 		return -1;
 	}
 

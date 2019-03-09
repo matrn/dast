@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/file.h>
 
 typedef unsigned char byte;
 typedef char s_byte;
@@ -27,9 +28,18 @@ callback_func * dast_watched_callback;
 
 
 s_byte dast_init();
-void dast_watch(char *, callback_func);
-s_byte dast_watch_dir(char *);
+s_byte dast_watch_dir(char * dir_name);
+void dast_watch(char * filename, callback_func func);
+
 void dast_run();
 void dast_cleanup();
+
+s_byte dast_open_rw(char * filename, FILE ** file);   /* open file for reading and writting */
+s_byte dast_open_ra(char * filename, FILE ** file);   /* open file for reading and appending */
+void dast_close(FILE ** file);
+
+s_byte dast_write(char * data, FILE ** file);
+s_byte dast_read(char ** data, FILE ** file);
+
 
 #endif

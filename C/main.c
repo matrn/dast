@@ -3,6 +3,7 @@
 
 #include "dast.h"
 #include <sys/inotify.h>	/* inotify_* */
+#include <sys/file.h>
 
 /*
 		struct inotify_event {
@@ -26,20 +27,34 @@ int main(int argc, char ** argv){
 	
 
 	
-	if(dast_watch_dir(".") != 0){
+	if(dast_watch_dir(".") < 0){
 		perror("inotify_add_watch");
 		return 5;
 	}
 
+	/*if(dast_watch_dir("/home/matej") < 0){
+		perror("inotify_add_watch");
+		return 5;
+	}
+	*/
 	dast_watch("t1", callback_1);
 	dast_watch("t2", callback_2);
 
 	dast_run();
 
+	FILE * file1;
+
+	dast_open_rw("t1", &file1);
+
+	dast_write("TEST", &file1);
+
 	while(1){
 		puts("tick");
 		sleep(1);
 	}
+
+	dast_close(&file1);
+
 	dast_cleanup();
 	return 0;
 }
