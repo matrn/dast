@@ -2,7 +2,6 @@
 #include <unistd.h>		/* read() */
 
 #include "dast.h"
-#include <sys/inotify.h>	/* inotify_* */
 #include <sys/file.h>
 
 /*
@@ -59,7 +58,8 @@ int main(int argc, char ** argv){
 	else{
 		puts("Unknown variable");
 	}
-	
+	dast_write_var(DELM_PRNTD, "test_var", "hey", &file1);
+
 	//free(content);
 	while(1){
 		puts("tick");

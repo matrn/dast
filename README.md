@@ -33,6 +33,6 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_ẅrit
 
 ### Write one variable
 
-### Read all varaibles
+### Read all variables
 
 ### Write all variables

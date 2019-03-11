@@ -48,5 +48,6 @@ s_byte dast_read(char ** data, FILE ** file);
 s_byte dast_write(char * data, FILE ** file);
 
 ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE ** file);
+s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file);   /* projdou se všechny proměnné v souboru, zároveň se budou ukládat, pokud tahle proměnná existuje, tak se popupraví a vše se zapíše a flushne, pokud ne, přidá se nakonec, vše se zapíše a flushne */
 
 #endif
