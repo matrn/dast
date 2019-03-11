@@ -105,6 +105,7 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 	 -1 = unknown variable
 	 0-X = size
 	 */
+	///!!!!!přidat flock
 
 	/* variables for getline function */
 	size_t len = 0;   /* size of alocated buffer */
