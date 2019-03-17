@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/file.h>
+#include <sys/file.h>   /* flock */
 
 typedef unsigned char byte;
 typedef char s_byte;

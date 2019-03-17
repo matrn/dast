@@ -57,19 +57,16 @@ ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE **
 	ssize_t nread;   /* for saving length of readed line */
 	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getline will automatically allocate memory for it */
 
-	unsigned int pos = 0;   /* for finding correct position of delimiter */
 
-
-	rewind(*file);	/* return to the beginning of file */
+	rewind(*file);	/* rewind to the beginning of file */
 
 	while((nread = getline(&line, &len, *file)) != -1){   /* read file line by line */
 		char * name;   /* for saving parsed name */
+		unsigned int pos = 0;   /* for finding correct position of delimiter */
 
 		line[nread -1] = 0;   /* remove newline character from readed line */
 
-		pos = 0;   /* null delimiter position variable */
-
-		while(pos < nread){
+		while(pos < nread){   /* let's find position of delimiter */
 			if(line[pos] == delimiter) break;
 			pos ++;
 		}
@@ -102,115 +99,149 @@ ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE **
 s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file){
 	/*
 	 Return values:
-	 -1 = unknown variable
-	 0-X = size
+	 -1 = some kind of error
+	 0 = rewritten only one line
+	 1 = rewritten file from line with variable to the end
+	 2 = variable added to the end of file
 	 */
-	///!!!!!přidat flock
+
 
 	/* variables for getline function */
 	size_t len = 0;   /* size of alocated buffer */
 	ssize_t nread;   /* for saving length of readed line */
 	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getline will automatically allocate memory for it */
 
-	unsigned int pos = 0;   /* for finding correct position of delimiter */
-
-	unsigned long file_pos = 0;
+	int a = 0;   /* variable for everything */
 
 	byte var_found = 0;
 
 	char ** vars_all;
-
-	vars_all = malloc(sizeof(char *));
 	unsigned int lines_num = 0;
 
-	rewind(*file);	/* return to the beginning of file */
+	unsigned long file_pos = 0;
+
+	size_t len_for_write = 0;   /* length of name and data */
+	
+	len_for_write = strlen(var_name) + strlen(var_data) + 2;   /* length of var_name and var_data + delimiter + newline */
+
+
+	vars_all = malloc(sizeof(char *));
+	
+
+
+	flock(fileno(*file), LOCK_EX);   /* lock file for other programs write */
+
+	rewind(*file);	/* rewind to the beginning of file */
 
 	while((nread = getline(&line, &len, *file)) != -1){   /* read file line by line */
+		printf("Current line >%s<", line);
 		char * name;   /* for saving parsed name */
 
 		//line[nread -1] = 0;   /* remove newline character from readed line */
 
-		pos = 0;   /* null delimiter position variable */
-		
-		if(var_found == 0){
-			while(pos < nread){
+		if(var_found == 0){   /* this part will be called only if variable wasn't still found */
+			unsigned int pos = 0;   /* for finding correct position of delimiter */
+	
+			while(pos < nread){   /* find position of delimiter */
 				if(line[pos] == delimiter) break;
 				pos ++;
 			}
 
-			// printf("pos: %d, nread %ld\n", pos, nread);
+			//printf("pos: %d, nread %ld\n", pos, nread);
 			if(pos != nread){   /* check if there is delimiter in the string */
 				name = malloc(pos + 1);   /* allocate memory for name of variable */
+				memset(name, '\0', pos);
+
 				strncpy(name, line, pos);   /* copy name of the variable to the variable name */
-				
+				name[pos] = 0;
+				printf("name >%s<\n", name);
 				if(strcmp(name, var_name) == 0){   /* check if name from file is same as passed var_name */
 					printf("Found var on position %ld\n", file_pos);
-					size_t name_len, data_len = 0;
-				
-					name_len = strlen(name);
-					data_len = strlen(var_data);
+					
 
-					if(name_len + data_len + 2 == strlen(line)){
-						//puts("writing only current line");
-						fseek(*file, file_pos, SEEK_SET);
-
-						sprintf(line, "%s%c%s\n", name, delimiter, var_data);
+					if(len_for_write == strlen(line)){   /* check if existing length of variable is same as new, if yes, program will rewrite only current line */
+						sprintf(line, "%s%c%s\n", name, delimiter, var_data);   /* create new variable and save it to the line variable which is allocated by getline() function */
+						
 						printf("Writing only current data >%s<\n", line);
-						fputs(line, *file);
-						fflush(*file);
+
+						fseek(*file, file_pos, SEEK_SET);   /* seek to the start position of this variable */
+						fputs(line, *file);   /* write data to the file */
+						fflush(*file);   /* flush file */
+
+						flock(fileno(*file), LOCK_UN);   /* unlock file */
+
+						/* free allocated memory */
 						free(vars_all);
 						free(name);
 						free(line);
-						return 0;
+
+						return 0;   /* return rewritten only one line */
 					}
-					var_found = 1;
+					else{
+						var_found = 1;   /* save that we found variable */
 
-					lines_num ++;
-					vars_all = realloc(vars_all, lines_num * sizeof(char *));
-					vars_all[lines_num - 1] = malloc(name_len + data_len + 3);
+						lines_num ++;   /* increment lines_num */
+						vars_all = realloc(vars_all, lines_num * sizeof(char *));   /* reallocate memory */
+						vars_all[lines_num - 1] = malloc(len_for_write);   /* allocate new place in array */
 
-					sprintf(vars_all[lines_num -1], "%s%c%s\n", name, delimiter, var_data);
-					printf("HERE >%s<\n", vars_all[lines_num -1]);
-					//strcpy(vars_all[lines_num - 1], line);
+						sprintf(vars_all[lines_num -1], "%s%c%s\n", name, delimiter, var_data);   /* save new data to current place in array */
+						printf("HERE >%s<\n", vars_all[lines_num -1]);
+						//strcpy(vars_all[lines_num - 1], line);
 
-					//*vars_all = line + pos + 1;   /* save data from variable */
+						//*vars_all = line + pos + 1;   /* save data from variable */
 
 
-					//free(name);   /* free name variable */
-					//free(line);   /* free line variable */
+						//free(name);   /* free name variable */
+						//free(line);   /* free line variable */
 
-					//return nread - pos - 2;   /* length of return str from getline - position of delimiter - delimiter + newline */
+						//return nread - pos - 2;   /* length of return str from getline - position of delimiter - delimiter + newline */
+					}
 				}
 
-				free(name);   /* free name variable */
+				free(name);   /* free allocated name variable */
 			}
 
-			if(var_found == 0) file_pos += nread;
+			if(var_found == 0) file_pos += nread;   /* add read bytes to position in file if we still didn't find correct variable */
 		}
 		else{
-			lines_num ++;
-			vars_all = realloc(vars_all, lines_num * sizeof(char *));
-			vars_all[lines_num - 1] = malloc(strlen(line));
-			strcpy(vars_all[lines_num - 1], line);
+			lines_num ++;   /* incrment lines_num variable */
+			vars_all = realloc(vars_all, lines_num * sizeof(char *));   /* reallocate memory */
+			vars_all[lines_num - 1] = malloc(strlen(line));   /* allocate new place in array */
+
+			strcpy(vars_all[lines_num - 1], line);   /* cop data to this variable */
+		}
+	}
+
+
+
+	if(var_found == 0){   /* variable was not found so it will be added to the end of file */
+		fprintf(*file, "%s%c%s\n", var_name, delimiter, var_data);   /* write variable to the end of file */
+
+		fflush(*file);   /* flush data to the file */
+	}
+
+	else{
+		fseek(*file, file_pos, SEEK_SET);   /* seek to the position of variable */
+
+		for(a = 0; a < lines_num; a ++){   /* iterate over vars_all */
+			printf("Writing >%s<\n", vars_all[a]);
+
+			fputs(vars_all[a], *file);   /* write current variable to the file */
+			free(vars_all[a]);   /* free current variable */
 		}
 
-		//printf("File Pos: %ld\n", file_pos);
-
+		fflush(*file);   /* flush data to the file */
+		ftruncate(fileno(*file), ftell(*file) + 1);   /* truncate file - end file */
 	}
-	if(var_found == 0) return -1;
-	printf("Pos: %d\n", pos);
 
-	fseek(*file, file_pos, SEEK_SET);
 
-	for(int a = 0; a < lines_num; a ++){
-		printf("Writing >%s<\n", vars_all[a]);
-		fputs(vars_all[a], *file);
-		free(vars_all[a]);
-	}
-	fflush(*file);
-	ftruncate(fileno(*file), ftell(*file) + 1);
+
+	flock(fileno(*file), LOCK_UN);   /* unlock file */
+
+	/* free allocated memore (varaibles) */
 	free(vars_all);
-	free(line);   /* free line variable */
+	free(line);
 
-	return 0;
+	if(var_found == 0) return 2;   /* added to the end of file */
+	else return 1;   /* rewritten from variabůe position to the end */
 }

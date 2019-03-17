@@ -58,11 +58,11 @@ int main(int argc, char ** argv){
 	else{
 		puts("Unknown variable");
 	}
-	dast_write_var(DELM_PRNTD, "test_var", "hey", &file1);
+	printf("Returned: %d\n", dast_write_var(DELM_PRNTD, "test_var", "hey", &file1));
 
 	//free(content);
 	while(1){
-		puts("tick");
+		//puts("tick");
 		sleep(1);
 	}
 
