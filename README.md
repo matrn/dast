@@ -48,3 +48,7 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  - `0` - rewritten only line with correct variable - this is only when existing and new lines have same line
  - `1` - rewritten file from line with correct variable to the end of file, after reaching end file will be truncated
  - `2` - variable added to the end of file
+
+## ToDo
+
+ - check string null ending

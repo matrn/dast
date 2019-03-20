@@ -150,10 +150,10 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 			//printf("pos: %d, nread %ld\n", pos, nread);
 			if(pos != nread){   /* check if there is delimiter in the string */
 				name = malloc(pos + 1);   /* allocate memory for name of variable */
-				memset(name, '\0', pos);
-
+		
 				strncpy(name, line, pos);   /* copy name of the variable to the variable name */
 				name[pos] = 0;
+
 				printf("name >%s<\n", name);
 				if(strcmp(name, var_name) == 0){   /* check if name from file is same as passed var_name */
 					printf("Found var on position %ld\n", file_pos);
