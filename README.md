@@ -1,7 +1,7 @@
 dast - data sharing tool using inotify
 ==========
 
-__Work in progress__
+# __Work in progress__
 
 Library for sharing variables and data through files using inotify events.
 
