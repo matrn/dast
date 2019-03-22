@@ -39,7 +39,7 @@ Function takes pointer for `var_name` and `var_data`. Pointer for variable data 
 ### Write one variable
 
 For writting one variable there is a function `s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file)`.
-This function takes `var_name` and `var_data`. These values will be written to the file. More about it in section [Write realisation][## Write realisation].
+This function takes `var_name` and `var_data`. These values will be written to the file. More about it in section [Write realisation](##Write-realisation)
 
 ### Read all variables
 
