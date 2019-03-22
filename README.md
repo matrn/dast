@@ -1,4 +1,4 @@
-dast - data sharing tool using inotify
+dast - data sharing tool using inotify - *Work in progress*
 ==========
 
 Library for sharing variables and data through files using inotify events.
