@@ -59,4 +59,4 @@ Library can rewrite only part of file, you can get info about rewritten data fro
 
 ## ToDo
 
- - check string null ending
+ - [x] check string null ending
