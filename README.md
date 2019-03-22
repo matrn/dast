@@ -33,7 +33,13 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_ẅrit
 
 ### Read one variable
 
+For reading one variable there is a function called `ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE ** file)`.
+Function takes pointer for `var_name` and `var_data`. Pointer for variable data will be saved to passed `var_data` variable. This pointer shows to memory allocated by `getline()` function. Function returns size of variable data and `-1` if variable doesn't exist.
+
 ### Write one variable
+
+For writting one variable there is a function `s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file)`.
+This function takes `var_name` and `var_data`. These values will be written to the file. More about it in section [Write realisation][Write realisation].
 
 ### Read all variables
 
