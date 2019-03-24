@@ -12,22 +12,17 @@ Library for sharing variables and data through files using inotify events.
 
 Library will just read or write whole file without formatting.
 
-### One line variables
+### Varaible format
 
- * prntd (printable delimiter) Delimited by `=` - For example: `test_var=Hello World`
-
- * unprd (unprintable delimiter) Delimited by `dec(30)` `hex(1E)` ASCII character (record separator) - For example: `test_var``0x1E``This is useful for special =-+*/!. characters`
-
-### Multi-line data
-
- * munpd (multi-line, unprintable delimiters) Format: `0x01``data name``0x02``multi \n line \n data and normal characters =-+*/!``0x03`
-
+ * OLPD = One Line Printable Delimiter - name is delimited from data using `=` and line is ended with `\n`, for example: `test_var=Hello World``\n`
+ * OLUD = One Line Unprintable Delimiter - name is delimited from data using `dec(30)` ASCII `record separator` and line is ended with `\n`, for example: `test_var``0x1E``This is useful for special =-+*/!. characters``\n`
+ * MLUD = Multi Line Unprintable Delimiter - name is delimited from data using `dec(30)` ASCII `record separator` and ended with `dec(03)` ASCII `end of text`, for example:  `test_var``0x1E``multi \n line \n data and normal characters =-+*/!``0x03`
 
 ## File operations
 
 ### Read/Write whole file
 
-Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_ẅrite(char ** data, FILE ** file);`
+Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(char ** data, FILE ** file);`
 
 ### Append to file
 
