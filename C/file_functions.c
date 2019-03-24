@@ -1,5 +1,13 @@
 #include "dast.h"
 
+
+char OLPD[3] = { 00, '=', '\n' };   /* unused, =, newline */
+char OLUD[3] = { 00, 02, '\n' };    /* unused, start of text, newline */
+char MLUD[3] = { 01, 02, 03 };      /* start of heading, start of text, end of text */
+
+
+
+
 s_byte dast_open_rw(char * filename, FILE ** file){
 	if(access(filename, F_OK) != -1 ){	/* test if file exists */
 		/* file exists */
@@ -19,9 +27,12 @@ s_byte dast_open_rw(char * filename, FILE ** file){
 }
 
 
+
 void dast_close(FILE ** file){
 	fclose(*file);
 }
+
+
 
 s_byte dast_write(char * data, FILE ** file){	
 	flock(fileno(*file), LOCK_EX);	/* lock file for other programs write */
@@ -39,18 +50,22 @@ s_byte dast_write(char * data, FILE ** file){
 
 	return 0;
 }
+
+
 /*
 s_byte dast_read(char ** data, FILE ** file){
 	return 0;
 }
 */
 
-ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE ** file){
+
+ssize_t dast_read_var(char separators[2], char * var_name, char ** var_data, FILE ** file){
 	/*
 	 Return values:
 	 -1 = unknown variable
 	 0-X = size
 	 */
+	char delimiter, data_end;
 
 	/* variables for getline function */
 	size_t len = 0;   /* size of alocated buffer */
@@ -58,9 +73,12 @@ ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE **
 	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getline will automatically allocate memory for it */
 
 
+	delimiter = separators[0];
+	data_end = separators[1];
+
 	rewind(*file);	/* rewind to the beginning of file */
 
-	while((nread = getline(&line, &len, *file)) != -1){   /* read file line by line */
+	while((nread = getdelim(&line, &len, data_end, *file)) != -1){   /* read file line by line */
 		char * name;   /* for saving parsed name */
 		unsigned int pos = 0;   /* for finding correct position of delimiter */
 
@@ -96,7 +114,8 @@ ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE **
 }
 
 
-s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file){
+
+s_byte dast_write_var(char separators[2], char * var_name, char * var_data, FILE ** file){
 	/*
 	 Return values:
 	 -1 = some kind of error
@@ -105,6 +124,7 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 	 2 = variable added to the end of file
 	 */
 
+	char delimiter, data_end;
 
 	/* variables for getline function */
 	size_t len = 0;   /* size of alocated buffer */
@@ -125,6 +145,9 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 	size_t len_for_write = 0;   /* length of name and data */
 	
 
+	delimiter = separators[0];
+	data_end = separators[1];
+
 
 	len_for_write = strlen(var_name) + strlen(var_data) + 2;   /* length of var_name and var_data + delimiter + newline */
 
@@ -137,7 +160,7 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 	rewind(*file);	/* rewind to the beginning of file */
 
 
-	while((nread = getline(&line, &len, *file)) != -1){   /* read file line by line */
+	while((nread = getdelim(&line, &len, data_end, *file)) != -1){   /* read file line by line */
 		//printf("Current line >%s<", line);
 		char * name;   /* for saving parsed name */
 
@@ -164,7 +187,7 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 					
 
 					if(len_for_write == strlen(line)){   /* check if existing length of variable is same as new, if yes, program will rewrite only current line */
-						sprintf(line, "%s%c%s\n", name, delimiter, var_data);   /* create new variable and save it to the line variable which is allocated by getline() function */
+						sprintf(line, "%s%c%s%c", name, delimiter, var_data, data_end);   /* create new variable and save it to the line variable which is allocated by getline() function */
 						
 						//printf("Writing only current data >%s<\n", line);
 
@@ -188,7 +211,7 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 						vars_all = realloc(vars_all, lines_num * sizeof(char *));   /* reallocate memory */
 						vars_all[lines_num - 1] = malloc(len_for_write + 1);   /* allocate new place in array */
 
-						sprintf(vars_all[lines_num -1], "%s%c%s\n", name, delimiter, var_data);   /* save new data to current place in array */
+						sprintf(vars_all[lines_num -1], "%s%c%s%c", name, delimiter, var_data, data_end);   /* save new data to current place in array */
 						//printf("HERE >%s<\n", vars_all[lines_num -1]);
 						//strcpy(vars_all[lines_num - 1], line);
 
@@ -219,7 +242,7 @@ s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** 
 
 
 	if(var_found == 0){   /* variable was not found so it will be added to the end of file */
-		fprintf(*file, "%s%c%s\n", var_name, delimiter, var_data);   /* write variable to the end of file */
+		fprintf(*file, "%s%c%s%c", var_name, delimiter, var_data, data_end);   /* write variable to the end of file */
 
 		fflush(*file);   /* flush data to the file */
 	}

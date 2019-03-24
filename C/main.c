@@ -51,14 +51,14 @@ int main(int argc, char ** argv){
 
 	ssize_t len = 0;
 
-	if((len = dast_read_var(DELM_PRNTD, "test_var", &content, &file1)) != -1){
+	if((len = dast_read_var(MLUD, "test_var", &content, &file1)) != -1){
 		printf("Content >%s<\n", content);
 		printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 	}
 	else{
 		puts("Unknown variable");
 	}
-	printf("Returned: %d\n", dast_write_var(DELM_PRNTD, "test_var", "hey", &file1));
+	printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);
 	while(1){

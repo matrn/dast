@@ -14,14 +14,15 @@ typedef unsigned char byte;
 typedef char s_byte;
 typedef void (*callback_func)();
 
-
-#define DELM_PRNTD '='
-#define DELM_UNPRD 30
-
+extern char OLPD[3];
+extern char OLUD[3];
+extern char MLUD[3];
 
 #define DT_UNKNOWN_VAR -1
-#define DT_
+//#define DT_
 #define BUF_LEN (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
+
+
 
 int ifd, len, namlen;  // iwd
 struct inotify_event *iev;
@@ -47,7 +48,7 @@ void dast_close(FILE ** file);
 s_byte dast_read(char ** data, FILE ** file);
 s_byte dast_write(char * data, FILE ** file);
 
-ssize_t dast_read_var(char delimiter, char * var_name, char ** var_data, FILE ** file);
-s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file);   /* projdou se všechny proměnné v souboru, zároveň se budou ukládat, pokud tahle proměnná existuje, tak se popupraví a vše se zapíše a flushne, pokud ne, přidá se nakonec, vše se zapíše a flushne */
+ssize_t dast_read_var(char separators[2], char * var_name, char ** var_data, FILE ** file);
+s_byte dast_write_var(char separators[2], char * var_name, char * var_data, FILE ** file);   /* projdou se všechny proměnné v souboru, zároveň se budou ukládat, pokud tahle proměnná existuje, tak se popupraví a vše se zapíše a flushne, pokud ne, přidá se nakonec, vše se zapíše a flushne */
 
 #endif
