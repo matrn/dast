@@ -50,15 +50,15 @@ int main(int argc, char ** argv){
 	//content = malloc(50);
 
 	ssize_t len = 0;
-
-	if((len = dast_read_var(MLUD, "test_var", &content, &file1)) != -1){
+	char dd[3] = {'A', 'D', 'E'};
+	if((len = dast_read_var(dd, "test_var", &content, &file1)) != -1){
 		printf("Content >%s<\n", content);
 		printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 	}
 	else{
 		puts("Unknown variable");
 	}
-	printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
+	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);
 	while(1){

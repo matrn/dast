@@ -53,3 +53,6 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  - `2` - variable added to the end of file
 
 ## ToDo
+
+ - modify dast_write_var for new type of delimiters and cleanup dast_read_var
+

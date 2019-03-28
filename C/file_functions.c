@@ -59,49 +59,78 @@ s_byte dast_read(char ** data, FILE ** file){
 */
 
 
-ssize_t dast_read_var(char separators[2], char * var_name, char ** var_data, FILE ** file){
+ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, FILE ** file){
 	/*
 	 Return values:
 	 -1 = unknown variable
 	 0-X = size
 	 */
-	char delimiter, data_end;
+	char start_char, delim_char, end_char;
 
 	/* variables for getline function */
 	size_t len = 0;   /* size of alocated buffer */
 	ssize_t nread;   /* for saving length of readed line */
-	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getline will automatically allocate memory for it */
+	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getdelim will automatically allocate memory for it */
 
 
-	delimiter = separators[0];
-	data_end = separators[1];
+
+	start_char = separators[0];
+	delim_char = separators[1];
+	end_char = separators[2];
 
 	rewind(*file);	/* rewind to the beginning of file */
 
-	while((nread = getdelim(&line, &len, data_end, *file)) != -1){   /* read file line by line */
+
+	while((nread = getdelim(&line, &len, end_char, *file)) != -1){   /* read file line by line */
 		char * name;   /* for saving parsed name */
-		unsigned int pos = 0;   /* for finding correct position of delimiter */
+		unsigned int start_pos = 0;   /* for finding correct position of start character */ 
+		unsigned int delim_pos = 0;   /* for finding correct position of delimiter */ 
+		
+		
+		/* -----get position of start character if it's specified----- */
+		if(start_char != 0){   /* if user specified start character we must find it and remove everything before it */
+			while(start_pos < nread - 1){   /* nread - 1 because we don't have to read end character */
+				if(line[start_pos] == start_char){   /* start character was found */
+					start_pos ++;   /* we have to incerement 1 because we want position of actual data */
+					break;
+				}
 
-		line[nread -1] = 0;   /* remove newline character from readed line */
-
-		while(pos < nread){   /* let's find position of delimiter */
-			if(line[pos] == delimiter) break;
-			pos ++;
+				start_pos ++;
+			}
 		}
+		/* -----get position of start character if it's specified----- */
 
-		// printf("pos: %d, nread %ld\n", pos, nread);
-		if(pos != nread){   /* check if there is delimiter in the string */
-			name = malloc(pos + 1);   /* allocate memory for name of variable */
-			strncpy(name, line, pos);   /* copy name of the variable to the variable name */
+		/* -----get position of delimiter----- */
+		delim_pos = start_pos;   /* our search starts at start position */
+
+		while(delim_pos < nread - 1){   /* let's find position of delimiter, nread - 1 because we don't have to read end character */
+			if(line[delim_pos] == delim_char) break;
+
+			delim_pos ++;
+		}
+		/* -----get position of delimiter----- */
+	
+
+		line[nread -1] = 0;   /* remove end character from readed line/data */
+
+		//printf("Delim pos: %d, nread %ld\n", delim_pos, nread);
+
+		if(delim_pos != nread - 1){   /* check if there is delimiter in the string */
+			name = malloc(delim_pos - start_pos + 1);   /* allocate memory for name of variable, delimiter position - start position is length of name between these two characters */
+			
+			strncpy(name, line + start_pos, delim_pos);   /* copy name of the variable to the variable name */
+			name[delim_pos - start_pos] = 0;   /* save 0 to the end of string */
+			
+			//printf("Name >%s<\n", name);
 			
 			if(strcmp(name, var_name) == 0){   /* check if name from file is same as passed var_name */
-				*var_data = line + pos + 1;   /* save data from variable */
+				*var_data = line + delim_pos + 1;   /* save data from variable */
 
 
 				free(name);   /* free name variable */
 				free(line);   /* free line variable */
 
-				return nread - pos - 2;   /* length of return str from getline - position of delimiter - delimiter + newline */
+				return nread - delim_pos - 2;   /* length of return str from getdelim - position of delimiter - delimiter + newline */
 			}
 
 			free(name);   /* free name variable */
@@ -115,7 +144,7 @@ ssize_t dast_read_var(char separators[2], char * var_name, char ** var_data, FIL
 
 
 
-s_byte dast_write_var(char separators[2], char * var_name, char * var_data, FILE ** file){
+s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE ** file){
 	/*
 	 Return values:
 	 -1 = some kind of error
@@ -129,7 +158,7 @@ s_byte dast_write_var(char separators[2], char * var_name, char * var_data, FILE
 	/* variables for getline function */
 	size_t len = 0;   /* size of alocated buffer */
 	ssize_t nread;   /* for saving length of readed line */
-	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getline will automatically allocate memory for it */
+	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getdelim will automatically allocate memory for it */
 
 	unsigned int a = 0;   /* variable for everything */
 
