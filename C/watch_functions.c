@@ -15,7 +15,7 @@ void dast_watch(char * filename, callback_func func){
 	dast_watched_name = realloc(dast_watched_name, dast_watched_size * sizeof(char *));
 	dast_watched_callback =  realloc(dast_watched_callback, dast_watched_size * sizeof(callback_func));
 	
-	dast_watched_name[dast_watched_size - 1] = malloc(strlen(filename));
+	dast_watched_name[dast_watched_size - 1] = malloc(strlen(filename) + 1);
 	strcpy(dast_watched_name[dast_watched_size - 1], filename);
 
 	dast_watched_callback[dast_watched_size - 1] = func;
