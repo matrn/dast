@@ -47,9 +47,7 @@ int main(int argc, char ** argv){
 	dast_open_rw("t1", &file1);
 
 
-	char dd[3] = {'A', 'D', 'E'};
-
-	//printf("Retudned: %d\n", dast_write_var(dd, "aa", "test", &file1));
+	char dd[3] = {'$', ',', ';'};
 	
 	//content = malloc(50);
 
@@ -62,6 +60,11 @@ int main(int argc, char ** argv){
 	else{
 		puts("Unknown variable");
 	}
+
+	puts("-------------------write---------------------");
+	printf("Returned: %d\n", dast_write_var(dd, "aa", "test", &file1));
+	puts("-------------------write---------------------");
+	
 	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);
