@@ -62,9 +62,14 @@ int main(int argc, char ** argv){
 	}
 
 	puts("-------------------write---------------------");
-	printf("Returned: %d\n", dast_write_var(dd, "aa", "test", &file1));
+	s_byte rtn;
+	if((rtn = dast_write_var(dd, "aa", "test", &file1)) != -1){
+		printf("Returned: %d\n", rtn);
+	}else{
+		perror("data_write_var");
+	}
 	puts("-------------------write---------------------");
-	
+
 	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);

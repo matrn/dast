@@ -190,12 +190,6 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 	// unsigned int a = 0;   /* variable for everything */
 
-
-	// char ** vars_all;   /* for saving all read variables */
-	// unsigned int lines_num = 0;   /* for saving number of lines (variables) read from file */
-
-	//byte var_found = 0;   /* for saving if we found correct variable in read file */
-	
 	char * data_buf = NULL;   /* data from variable position to the end */
 	long data_length;   /* position from ftell function */
 
@@ -212,9 +206,6 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 	len_for_write = strlen(var_name) + strlen(var_data) + 2;   /* length of var_name and var_data + delimiter + end character */
 	if(start_char != 0) len_for_write ++;
-
-	//vars_all = malloc(sizeof(char *));   /* allocate memory for only one variable, memory for more variables will be reallocated during run */
-	//data_buf = malloc(500);
 
 
 	if(flock(fileno(*file), LOCK_EX) != 0){   /* lock file for other programs write */
@@ -256,12 +247,12 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 		line[nread -1] = 0;   /* remove end character from readed line/data */
 
-		//printf("Delim pos: %d, nread %ld\n", delim_pos, nread);
+		//printf("Start pos: %d, Delim pos: %d, nread %ld\n", start_pos, delim_pos, nread);
 
 		if(delim_pos != nread - 1){   /* check if there is delimiter in the string */
 			char * name;   /* for saving parsed name */
 			unsigned int len = delim_pos - start_pos;   /* length of name */
-
+			
 			/* let's allocate memory and copy data */
 			name = malloc(len + 1);   /* allocate memory for name of variable, len + 1 for termination string */
 			strncpy(name, line + start_pos, len);   /* copy name of the variable to the variable name */
@@ -273,16 +264,16 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 			/* -----found correct name of variable----- */
 			if(strcmp(name, var_name) == 0){   /* check if name from file is same as passed var_name */
 				unsigned int line_len_true = nread - start_pos + 1;
-				printf("Found var on position %ld\n", file_pos);
+				//rintf("Found var on position %ld\n", file_pos);
 				
-				printf("Len for write: %ld, len of line: %d\n", len_for_write, line_len_true);
+				//printf("Len for write: %ld, len of line: %d\n", len_for_write, line_len_true);
 				/*-----only current line rewrite----*/
 				if(len_for_write == line_len_true){   /* check if existing length of variable is same as new, if yes, program will rewrite only current line */
 					/* create new variable and save it to the line variable which is allocated by getdelim() function */
 					if(start_char == 0) sprintf(line, "%s%c%s%c", name, delim_char, var_data, end_char);   /* without start_char */
 					else sprintf(line, "%c%s%c%s%c", start_char, name, delim_char, var_data, end_char);   /* with start char */
 
-					printf("Writing only current data >%s<\n", line);
+					//printf("Writing only current data >%s<\n", line);
 
 					fseek(*file, file_pos + start_pos - 1, SEEK_SET);   /* seek to the start position of this variable but keep garabge before start_char in file */
 					fputs(line, *file);   /* write data to the file */
@@ -305,7 +296,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 				/*-----file was rewritten from current line to the end----*/
 				else{
-					puts("From curr to the end");
+					//puts("From curr to the end");
 
 
 					fseek(*file, 0, SEEK_END);   /* go to the end of file */
@@ -324,7 +315,9 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 					data_buf[data_length] = 0;
 
-					printf("to the end>%s<\n", data_buf);
+					//printf("to the end>%s<\n", data_buf);
+
+					file_pos += start_pos-1;
 					break;
 				}
 				/*-----file was rewritten from current line to the end----*/
@@ -338,7 +331,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 
 	if(data_buf){
-		puts("Rewritting from current var to the end");
+		//puts("Rewritting from current var to the end");
 		fseek(*file, file_pos, SEEK_SET);   /* seek to the position of variable */
 
 		if(start_char == 0) fprintf(*file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
@@ -352,7 +345,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 		ftruncate(fileno(*file), ftell(*file));   /* truncate file - end file */
 	}
 	else{   /* variable was not found so it will be added to the end of file */
-		puts("Added to the ned of file");
+		//puts("Added to the ned of file");
 		/* write variable to the end of file */
 		if(start_char == 0) fprintf(*file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
 		else fprintf(*file, "%c%s%c%s%c", start_char, var_name, delim_char, var_data, end_char);   /* with start char */
