@@ -12,7 +12,7 @@ Library for sharing variables and data through files using inotify events.
 
 Library will just read or write whole file without formatting.
 
-### Varaible format
+### Predefined variables formats
 
  * OLPD = One Line Printable Delimiter - name is delimited from data using `=` and line is ended with `\n`, for example: `test_var=Hello World``\n`
  * OLUD = One Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and line is ended with `\n`, for example: `test_var``0x1E``This is useful for special =-+*/!. characters``\n`
@@ -36,10 +36,6 @@ Function takes pointer for `var_name` and `var_data`. Pointer for variable data 
 For writting one variable there is a function `s_byte dast_write_var(char delimiter, char * var_name, char * var_data, FILE ** file)`.
 This function takes `var_name` and `var_data`. These values will be written to the file. More about it in section [write realisation](#write-realisation)
 
-### Read all variables
-
-### Write all variables
-
 
 ## Write realisation
 
@@ -52,7 +48,13 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  - `1` - rewritten file from line with correct variable to the end of file, after reaching end file will be truncated
  - `2` - variable added to the end of file
 
+
+### Read all variables
+
+### Write all variables
+
+
 ## ToDo
 
- - modify dast_write_var for new type of delimiters and cleanup dast_read_var
+ - ~~modify dast_write_var for new type of delimiters and cleanup dast_read_var~~
 
