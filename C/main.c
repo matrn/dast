@@ -70,6 +70,20 @@ int main(int argc, char ** argv){
 	}
 	puts("-------------------write---------------------");
 
+
+	char * tt;
+	dast_add_time('-', "cool", &tt);
+	printf("OUT >%s<\n", tt);
+	printf("IN str: %d\n", in_str(tt, 'Z'));
+
+
+	long tm = 0;
+	char * str;
+	//const char format = {'%', 'l', 'u', '-', '%', 'm', 's'};
+	rtn = dast_parse_time('-', "-", &tm, &str);
+	printf("Returned: %d, Time >%lu< str >%s<\n", rtn, tm, str);
+
+	free(tt);
 	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);

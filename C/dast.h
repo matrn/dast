@@ -10,6 +10,10 @@
 #include <unistd.h>
 #include <sys/file.h>   /* flock */
 
+#include <errno.h>
+#include <limits.h>   /* for strtol limits */
+#include <time.h>   /* unix time stamp */
+
 typedef unsigned char byte;
 typedef char s_byte;
 typedef void (*callback_func)();
@@ -50,5 +54,13 @@ s_byte dast_write(char * data, FILE ** file);
 
 ssize_t dast_read_var(char separators[2], char * var_name, char ** var_data, FILE ** file);
 s_byte dast_write_var(char separators[2], char * var_name, char * var_data, FILE ** file);   /* projdou se všechny proměnné v souboru, zároveň se budou ukládat, pokud tahle proměnná existuje, tak se popupraví a vše se zapíše a flushne, pokud ne, přidá se nakonec, vše se zapíše a flushne */
+
+
+/* -----helpers.c----- */
+void dast_add_time(char delimiter, char * data, char ** output);
+s_byte dast_parse_time(char delimiter, char * input, long * time, char ** data);
+
+byte in_str(char * input, char character);
+/* -----helpers.c----- */
 
 #endif

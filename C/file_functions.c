@@ -150,7 +150,7 @@ ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, FIL
 				/* let's allocate memory and copy data */
 				*var_data = malloc(len + 1);
 				strcpy(*var_data, line + delim_pos + 1);   /* save data from variable - starting at delim_position + 1 */
-				*var_data[len] = 0;   /* end of string, -2 is for delimiter character and because array starts at 0 */
+				//*var_data[len] = 0;   /* end of string, -2 is for delimiter character and because array starts at 0 */
 
 
 				free(name);   /* free name variable */
