@@ -80,9 +80,9 @@ int main(int argc, char ** argv){
 	long tm = 0;
 	char * str;
 	//const char format = {'%', 'l', 'u', '-', '%', 'm', 's'};
-	rtn = dast_parse_time('-', "-", &tm, &str);
+	rtn = dast_parse_time('-', "556-lol", &tm, &str);
 	printf("Returned: %d, Time >%lu< str >%s<\n", rtn, tm, str);
-
+	free(str);
 	free(tt);
 	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 

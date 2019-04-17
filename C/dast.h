@@ -61,6 +61,7 @@ void dast_add_time(char delimiter, char * data, char ** output);
 s_byte dast_parse_time(char delimiter, char * input, long * time, char ** data);
 
 byte in_str(char * input, char character);
+ssize_t get_pos(char * input, char character);
 /* -----helpers.c----- */
 
 #endif

@@ -1,7 +1,7 @@
 all: main
 
 libdast.so: watch_functions.c file_functions.c helpers.c
-	gcc watch_functions.c file_functions.c helpers.c -Wall -Wextra -Werror -g -pedantic -fPIC -shared -o libdast.so 
+	gcc watch_functions.c file_functions.c helpers.c -Wall -Wextra -g -fPIC -shared -o libdast.so #-pedantic -Werror
 	sudo cp libdast.so /usr/lib/libdast.so
 	ldconfig -n /usr/lib/
 
