@@ -263,10 +263,13 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 			
 			/* -----found correct name of variable----- */
 			if(strcmp(name, var_name) == 0){   /* check if name from file is same as passed var_name */
-				unsigned int line_len_true = nread - start_pos + 1;
-				//rintf("Found var on position %ld\n", file_pos);
+				unsigned int line_len_true = nread - start_pos;
+				if(start_char != 0) line_len_true ++;
+				//printf("Found var on position %ld\n", file_pos);
 				
 				//printf("Len for write: %ld, len of line: %d\n", len_for_write, line_len_true);
+				//printf("LINE read >%s<\n", line);
+
 				/*-----only current line rewrite----*/
 				if(len_for_write == line_len_true){   /* check if existing length of variable is same as new, if yes, program will rewrite only current line */
 					/* create new variable and save it to the line variable which is allocated by getdelim() function */
@@ -274,8 +277,9 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 					else sprintf(line, "%c%s%c%s%c", start_char, name, delim_char, var_data, end_char);   /* with start char */
 
 					//printf("Writing only current data >%s<\n", line);
+					//printf("Setting position to: %ld\n", file_pos + start_pos - ((start_char == 0) ? 0 : 1));
 
-					fseek(*file, file_pos + start_pos - 1, SEEK_SET);   /* seek to the start position of this variable but keep garabge before start_char in file */
+					fseek(*file, file_pos + start_pos - ((start_char == 0) ? 0 : 1), SEEK_SET);   /* seek to the start position of this variable but keep garabge before start_char in file */
 					fputs(line, *file);   /* write data to the file */
 					if(fflush(*file) != 0) return -1;   /* flush file */
 
@@ -306,18 +310,18 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 					//printf("File pos: %ld, nread: %ld, length: %ld\n", file_pos, nread, data_length);
 					data_buf = malloc(data_length + 1);   /* allocate memory for data after this variable */
 	
-					if(data_buf){   /* check if allocated something */
-						if(fread(data_buf, 1, data_length, *file) == 0){
+					if(data_buf){   /* check if we allocated something */
+						/*if(*/fread(data_buf, 1, data_length, *file);/* == 0){
 							perror("fread");
 							return -1;
-						}
+						}*/
 					}
 
 					data_buf[data_length] = 0;
 
 					//printf("to the end>%s<\n", data_buf);
 
-					file_pos += start_pos-1;
+					file_pos += start_pos - ((start_char == 0) ? 0 : 1);
 					break;
 				}
 				/*-----file was rewritten from current line to the end----*/
@@ -332,6 +336,8 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 	if(data_buf){
 		//puts("Rewritting from current var to the end");
+		//printf("Position: %ld\n", file_pos);
+
 		fseek(*file, file_pos, SEEK_SET);   /* seek to the position of variable */
 
 		if(start_char == 0) fprintf(*file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */

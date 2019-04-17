@@ -15,19 +15,23 @@
 		};
 */
 
+
 void callback_1();
 void callback_2();
 
 
 int main(int argc, char ** argv){
-	FILE * file1;
+	FILE * file1, * file2;
 	char * content;
+	ssize_t len = 0;
+	s_byte rtn;
 
+	/* initialize dast */
 	if(dast_init() != 0){
 		perror("dast init");
 	}	
 	
-	
+	/* add new directory to watch */
 	if(dast_watch_dir(".") != 0){
 		perror("inotify_add_watch");
 		return 5;
@@ -39,37 +43,50 @@ int main(int argc, char ** argv){
 	}
 	*/
 
-	dast_watch("t1", callback_1);
-	dast_watch("t2", callback_2);
+	/* add callbacks for specific files */
+	dast_watch("test1", callback_1);
+	dast_watch("test2", callback_2);
 
+	/* run inotify daemon */
 	dast_run();
 
-	
-	dast_open_rw("t1", &file1);
-
+	/* open files for read and write */
+	dast_open_rw("test1", &file1);
+	dast_open_rw("test2", &file2);
 
 	char dd[3] = {'$', ',', ';'};
 	
-
-	ssize_t len = 0;
-	if((len = dast_read_var(dd, "test_var", &content, &file1)) != -1){
-		printf("Content >%s<\n", content);
-		printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
+	/* try to read test_var variable */
+	if((len = dast_read_var(OLPD, "test_var", &content, &file1)) != -1){
+		printf(" 'test_var' content >%s<\n", content);
+		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
 	}
 	else{
-		puts("Unknown variable");
+		puts("Unknown variable 'test_var'");
 	}
 
 	puts("-------------------write---------------------");
-	s_byte rtn;
-	if((rtn = dast_write_var(dd, "aa", "test", &file1)) != -1){
-		printf("Returned: %d\n", rtn);
+	if((rtn = dast_write_var(MLUD, "test_var", "Hello World!", &file1)) != -1){
+		if(rtn == 0) puts("rewritten only one line");
+		if(rtn == 1) puts("rewritten file from position of variable to the end of file");
+		if(rtn == 2) puts("added to the end of file");
+
+		//printf("Returned: %d\n", rtn);
 	}else{
 		perror("data_write_var");
 	}
 	puts("-------------------write---------------------");
 
+	/* try to read test_var variable */
+	if((len = dast_read_var(OLPD, "test_var", &content, &file1)) != -1){
+		printf(" 'test_var' content >%s<\n", content);
+		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
+		free(content);
+	}
+	else{
+		puts("Unknown variable");
+	}
 
 	char * tt;
 	dast_add_time('-', "cool", &tt);
@@ -93,6 +110,7 @@ int main(int argc, char ** argv){
 	}
 
 	dast_close(&file1);
+	dast_close(&file2);
 
 	dast_cleanup();
 	return 0;

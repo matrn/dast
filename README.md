@@ -32,9 +32,6 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(
  - `char ** var_data` - here will be saved pointer for read data. Before calling this function pointer must be clear and after function it should be freed using `free()` function.
  - `FILE ** file` - pointer for file which will be read by this function
 
-<del>
-Function `dast_read_var()` takes pointer for `var_name` and `var_data`. Pointer for variable data will be saved to passed `var_data` variable. `var_data` variable will be allocated by function but it's necessary to `free()` this variable in code. ~~This pointer shows to memory allocated by `getline()` function.~~ 
-</del>
 
 #### Return values
 
@@ -55,8 +52,6 @@ Function `dast_read_var()` takes pointer for `var_name` and `var_data`. Pointer 
 
 This function can write only part of file, more about it and also about return values in the section [write realisation](#write-realisation)
 
-<del>
-Function `dast_write_var()` takes pointer to `var_name` and `var_data`. These values will be written to the file. </del>
 
 ### Write realisation
 
@@ -76,6 +71,9 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  * OLPD = One Line Printable Delimiter - name is delimited from data using `=` and line is ended with `\n`, for example: `test_var=Hello World``\n`
  * OLUD = One Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and line is ended with `\n`, for example: `test_var``0x1E``This is useful for special =-+*/!. characters``\n`
  * MLUD = Multi Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and ended with `dec(03)` ASCII `end of text`, for example:  `test_var``0x1E``multi \n line \n data and normal characters =-+*/!``0x03`
+
+*Note that mixing different separators can cause problems.*
+
 
 ## Read all variables
 

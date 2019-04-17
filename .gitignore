@@ -6,4 +6,6 @@ Python/
 C/*.so
 C/*.o
 C/mmtt
-C/mm
+C/test1
+C/test2
+.vscode

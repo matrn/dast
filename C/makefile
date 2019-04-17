@@ -2,7 +2,7 @@ all: main
 
 libdast.so: lib/*.c lib/dast.h # lib/watch_functions.c lib/file_functions.c lib/helpers.c
 	#compile everything to so library
-	gcc lib/*.c -Wall -Wextra -g -fPIC -shared -o libdast.so #-pedantic -Werror
+	gcc lib/*.c -Wall -Wextra -g -fPIC -shared -o libdast.so -pedantic -Werror
 
 	sudo cp lib/dast.h /usr/include/dast.h   #copy header file
 	sudo cp libdast.so /usr/lib/libdast.so   #copy library

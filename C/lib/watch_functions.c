@@ -1,5 +1,7 @@
 #include "dast.h"
 
+
+
 s_byte dast_init(){
 	if((ifd = inotify_init()) < 0) {
 		return -1;
