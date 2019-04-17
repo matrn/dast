@@ -103,7 +103,14 @@ s_byte dast_watch_dir(char * dir_name){
 
 
 void dast_cleanup(){
+	unsigned int pos = 0;
+
 	wait(NULL);			 /* Wait for child */
+
+	for(pos = 0; pos < sizeof(dast_watched_name); pos ++){
+		free(dast_watched_name[pos]);
+	}
 	free(dast_watched_name);
+
 	free(dast_watched_callback);
 }

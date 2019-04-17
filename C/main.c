@@ -104,10 +104,15 @@ int main(int argc, char ** argv){
 	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);
+	/*
 	while(1){
 		//puts("tick");
 		sleep(1);
 	}
+	*/
+	sleep(1);
+	puts("killing");
+	kill(0, SIGKILL);   /* kill child */
 
 	dast_close(&file1);
 	dast_close(&file2);
