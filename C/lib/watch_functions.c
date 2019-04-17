@@ -58,8 +58,8 @@ void dast_run(){
 				if (iev->mask & IN_DELETE_SELF)	 printf("DELETE_SELF ");
 				if (iev->mask & IN_IGNORED)		 printf("IGNORED ");
 				if (iev->mask & IN_ISDIR)		 printf("ISDIR ");
-				if (iev->mask & IN_MODIFY)	   printf("MODIFY ");
-				if (iev->mask & IN_MOVE_SELF)	printf("MOVE_SELF ");
+				if (iev->mask & IN_MODIFY)	     printf("MODIFY ");
+				if (iev->mask & IN_MOVE_SELF)	 printf("MOVE_SELF ");
 				if (iev->mask & IN_MOVED_FROM)	 printf("MOVED_FROM ");
 				if (iev->mask & IN_MOVED_TO)	 printf("MOVED_TO ");
 				if (iev->mask & IN_OPEN)		 printf("OPEN ");

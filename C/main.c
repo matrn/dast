@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>		/* read() */
 
-#include "dast.h"
+#include <dast.h>
 #include <sys/file.h>
 
 /*
@@ -20,13 +20,15 @@ void callback_2();
 
 
 int main(int argc, char ** argv){
+	FILE * file1;
+	char * content;
+
 	if(dast_init() != 0){
 		perror("dast init");
 	}	
 	
-
 	
-	if(dast_watch_dir(".") < 0){
+	if(dast_watch_dir(".") != 0){
 		perror("inotify_add_watch");
 		return 5;
 	}
@@ -36,20 +38,18 @@ int main(int argc, char ** argv){
 		return 5;
 	}
 	*/
+
 	dast_watch("t1", callback_1);
 	dast_watch("t2", callback_2);
 
 	dast_run();
 
-	FILE * file1;
-	char * content;
-
+	
 	dast_open_rw("t1", &file1);
 
 
 	char dd[3] = {'$', ',', ';'};
 	
-	//content = malloc(50);
 
 	ssize_t len = 0;
 	if((len = dast_read_var(dd, "test_var", &content, &file1)) != -1){
