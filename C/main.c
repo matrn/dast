@@ -21,7 +21,7 @@ void callback_2();
 
 
 int main(int argc, char ** argv){
-	FILE * file1, * file2;
+	DSFILE file1, file2;
 	char * content;
 	ssize_t len = 0;
 	s_byte rtn;
@@ -53,11 +53,14 @@ int main(int argc, char ** argv){
 	/* open files for read and write */
 	dast_open_rw("test1", &file1);
 	dast_open_rw("test2", &file2);
-
+	/*
+	dast_write_pid(32500, file2.pidfile);
+	printf("PID: %d\n", dast_read_pid(file2.pidfile));
+	*/
 	char dd[3] = {'$', ',', ';'};
 	
 	/* try to read test_var variable */
-	if((len = dast_read_var(OLPD, "test_var", &content, &file1)) != -1){
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != -1){
 		printf(" 'test_var' content >%s<\n", content);
 		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
@@ -67,7 +70,7 @@ int main(int argc, char ** argv){
 	}
 
 	puts("-------------------write---------------------");
-	if((rtn = dast_write_var(MLUD, "test_var", "Hello World!", &file1)) != -1){
+	if((rtn = dast_write_var(MLUD, "test_var", "Hello World!", file1)) != -1){
 		if(rtn == 0) puts("rewritten only one line");
 		if(rtn == 1) puts("rewritten file from position of variable to the end of file");
 		if(rtn == 2) puts("added to the end of file");
@@ -79,7 +82,7 @@ int main(int argc, char ** argv){
 	puts("-------------------write---------------------");
 
 	/* try to read test_var variable */
-	if((len = dast_read_var(OLPD, "test_var", &content, &file1)) != -1){
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != -1){
 		printf(" 'test_var' content >%s<\n", content);
 		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
@@ -104,18 +107,17 @@ int main(int argc, char ** argv){
 	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
 
 	//free(content);
-	/*
+	
 	while(1){
 		//puts("tick");
 		sleep(1);
 	}
-	*/
+	
 	sleep(1);
 	puts("killing");
-	kill(0, SIGKILL);   /* kill child */
 
-	dast_close(&file1);
-	dast_close(&file2);
+	dast_close(file1);
+	dast_close(file2);
 
 	dast_cleanup();
 	return 0;
@@ -125,11 +127,13 @@ int main(int argc, char ** argv){
 
 void callback_1(){
 	puts("");
+	puts("-------");
 	puts("Callback_1");
 }
 
 
 void callback_2(){
 	puts("");
+	puts("-------");
 	puts("Callback_2");
 }

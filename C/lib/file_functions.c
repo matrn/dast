@@ -8,18 +8,23 @@ char MLUD[3] = { 01, 02, 03 };      /* start of heading, start of text, end of t
 
 
 
-s_byte dast_open_rw(char * filename, FILE ** file){
+s_byte open_rw(char * filename, FILE ** file){
+	/* return values:
+	 0  = OK
+	 -1 = error while openning
+	*/
+
 	if(access(filename, F_OK) != -1 ){	/* test if file exists */
 		/* file exists */
 		if(!(*file = fopen(filename,"r+"))){	/* use r+ option for file open */
-			perror("error while opennig svar file");
-			exit(5);
+			perror("error while opennig file");
+			return -1;
 		}
 	}else{
 		/* file doesn't exist */
 		if(!(*file = fopen(filename,"w+"))){	/* use option w+, it creates file */
-			perror("error while opennig svar file");
-			exit(5);
+			perror("error while opennig file");
+			return -1;
 		}
 	}	
 
@@ -27,33 +32,111 @@ s_byte dast_open_rw(char * filename, FILE ** file){
 }
 
 
+s_byte dast_open_rw(char * filename, DSFILE * dsfile){
+	/* return values:
+	 0  = OK
+	 -1 = error while openning
+	*/
 
-void dast_close(FILE ** file){
-	fclose(*file);
+	char * pidfile_name;
+	DSFILE local;
+
+	if(open_rw(filename, &local.file) != 0) return -1;	
+
+	pidfile_name = generate_pidfile_name(filename);
+	if(open_rw(pidfile_name, &local.pidfile) != 0) return -1;
+	free(pidfile_name);
+
+	*dsfile = local;
+
+	return 0;
 }
 
 
+void dast_close(DSFILE dsfile){
+	fclose(dsfile.file);
+	fclose(dsfile.pidfile);
+}
 
-s_byte dast_write(char * data, FILE ** file){	
-	flock(fileno(*file), LOCK_EX);	/* lock file for other programs write */
 
-	rewind(*file);	/* rewind back to the beginning */
+s_byte dast_write_pid(pid_t pid, FILE * file){
+	/* return values:
+	 0  = all is OK
+	 -1 = error
+	*/
+
+	if(flock(fileno(file), LOCK_EX) != 0) return -1;   /* lock file for other programs write */
+
+	rewind(file);	/* rewind back to the beginning */	
+	fprintf(file, "%d", pid);
+	fflush(file);   /* flush file buffer */
+	ftruncate(fileno(file), ftell(file));   /* truncate file - end file */
+
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+
+	return 0;
+}
+
+
+pid_t dast_read_pid(FILE * file){
+	/* return values:
+	 -1  = on error
+	 0-X = PID
+	*/
+	char * pid_str;
+	pid_t pid;
+	
+	rewind(file);
+
+	pid_str = malloc(10);
+
+	if(fgets(pid_str, 10, file) == NULL) return -1;
+	pid = atoi(pid_str);
+
+	free(pid_str);
+
+	return pid;		
+}
+
+
+s_byte dast_write(char * data, DSFILE dsfile){
+	/* return values:
+	 0  = OK
+	 -1 = error
+	*/
+	FILE * file;
+	file = dsfile.file;
+
+	if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
+		perror("flock");
+		return -1;
+	}
+
+	rewind(file);	/* rewind back to the beginning */
 
 	
-	fprintf(*file, "%s", data);	/* write data to file */
-		
+	if(fprintf(file, "%s", data) < 0){   /* write data to file */
+		perror("frpintf");
+		return -1;
+	}
 	//free(data);	/* it's polite to free alocated memory */
 
-	fflush(*file);	/* flush file buffer */
-	
-	flock(fileno(*file), LOCK_UN);	/* unlock file */
+	if(fflush(file) != 0){   /* flush file buffer */
+		perror("fflush");
+		return -1;
+	}
+
+	if(flock(fileno(file), LOCK_UN) != 0){   /* unlock file */
+		perror("flock");
+		return -1;
+	}
 
 	return 0;
 }
 
 
 /*
-s_byte dast_read(char ** data, FILE ** file){
+s_byte dast_read(char ** data, FILE * file){
 	return 0;
 }
 */
@@ -73,8 +156,7 @@ https://ozh.github.io/ascii-tables/
 */
 
 
-
-ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, FILE ** file){
+ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile){
 	/*
 	 Return values:
 	 -1 = unknown variable
@@ -87,15 +169,18 @@ ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, FIL
 	ssize_t nread;   /* for saving length of readed line */
 	char * line = NULL;   /* variable for saving current line, if this var is NULL and len is 0, getdelim will automatically allocate memory for it */
 
+	FILE * file;
+
+	file = dsfile.file;
 
 	start_char = separators[0];
 	delim_char = separators[1];
 	end_char = separators[2];
 
 
-	rewind(*file);	/* rewind to the beginning of file */
+	rewind(file);	/* rewind to the beginning of file */
 
-	while((nread = getdelim(&line, &len, end_char, *file)) != -1){   /* read file line by line */
+	while((nread = getdelim(&line, &len, end_char, file)) != -1){   /* read file line by line */
 		unsigned int start_pos = 0;   /* for finding correct position of start character */ 
 		unsigned int delim_pos = 0;   /* for finding correct position of delimiter */ 
 		
@@ -172,7 +257,7 @@ ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, FIL
 
 
 
-s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE ** file){
+s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile){
 	/*
 	 Return values:
 	 -1 = some kind of error
@@ -198,6 +283,9 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 
 	size_t len_for_write = 0;   /* length of name and data */
 	
+	FILE * file;
+
+	file = dsfile.file;
 
 	start_char = separators[0];
 	delim_char = separators[1];
@@ -208,15 +296,17 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 	if(start_char != 0) len_for_write ++;
 
 
-	if(flock(fileno(*file), LOCK_EX) != 0){   /* lock file for other programs write */
+	if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
 		perror("flock");
 		return -1;
 	}
 
-	rewind(*file);	/* rewind to the beginning of file */
+	dast_write_pid(parent_pid, dsfile.pidfile);
+
+	rewind(file);	/* rewind to the beginning of file */
 
 
-	while((nread = getdelim(&line, &len, end_char, *file)) != -1){   /* read file line by line */
+	while((nread = getdelim(&line, &len, end_char, file)) != -1){   /* read file line by line */
 		unsigned int start_pos = 0;   /* for finding correct position of start character */ 
 		unsigned int delim_pos = 0;   /* for finding correct position of delimiter */ 
 		
@@ -279,12 +369,12 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 					//printf("Writing only current data >%s<\n", line);
 					//printf("Setting position to: %ld\n", file_pos + start_pos - ((start_char == 0) ? 0 : 1));
 
-					fseek(*file, file_pos + start_pos - ((start_char == 0) ? 0 : 1), SEEK_SET);   /* seek to the start position of this variable but keep garabge before start_char in file */
-					fputs(line, *file);   /* write data to the file */
-					if(fflush(*file) != 0) return -1;   /* flush file */
+					fseek(file, file_pos + start_pos - ((start_char == 0) ? 0 : 1), SEEK_SET);   /* seek to the start position of this variable but keep garabge before start_char in file */
+					fputs(line, file);   /* write data to the file */
+					if(fflush(file) != 0) return -1;   /* flush file */
 
 
-					if(flock(fileno(*file), LOCK_UN) != 0){   /* unlock file */
+					if(flock(fileno(file), LOCK_UN) != 0){   /* unlock file */
 						perror("flock");
 						return -1;
 					}
@@ -303,15 +393,15 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 					//puts("From curr to the end");
 
 
-					fseek(*file, 0, SEEK_END);   /* go to the end of file */
-					data_length = ftell(*file) - file_pos - nread;   /* get end length of data from current position to the end */	
-					fseek(*file, file_pos + nread, SEEK_SET);   /* get to position after current var in file */
+					fseek(file, 0, SEEK_END);   /* go to the end of file */
+					data_length = ftell(file) - file_pos - nread;   /* get end length of data from current position to the end */	
+					fseek(file, file_pos + nread, SEEK_SET);   /* get to position after current var in file */
 
 					//printf("File pos: %ld, nread: %ld, length: %ld\n", file_pos, nread, data_length);
 					data_buf = malloc(data_length + 1);   /* allocate memory for data after this variable */
 	
 					if(data_buf){   /* check if we allocated something */
-						/*if(*/fread(data_buf, 1, data_length, *file);/* == 0){
+						/*if(*/fread(data_buf, 1, data_length, file);/* == 0){
 							perror("fread");
 							return -1;
 						}*/
@@ -338,29 +428,29 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, FILE
 		//puts("Rewritting from current var to the end");
 		//printf("Position: %ld\n", file_pos);
 
-		fseek(*file, file_pos, SEEK_SET);   /* seek to the position of variable */
+		fseek(file, file_pos, SEEK_SET);   /* seek to the position of variable */
 
-		if(start_char == 0) fprintf(*file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
-		else fprintf(*file, "%c%s%c%s%c", start_char, var_name, delim_char, var_data, end_char);   /* with start char */
+		if(start_char == 0) fprintf(file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
+		else fprintf(file, "%c%s%c%s%c", start_char, var_name, delim_char, var_data, end_char);   /* with start char */
 		
-		fputs(data_buf, *file);
+		fputs(data_buf, file);
 
-		if(fflush(*file) != 0) return -1;   /* flush data to the file */
+		if(fflush(file) != 0) return -1;   /* flush data to the file */
 		
 
-		ftruncate(fileno(*file), ftell(*file));   /* truncate file - end file */
+		ftruncate(fileno(file), ftell(file));   /* truncate file - end file */
 	}
 	else{   /* variable was not found so it will be added to the end of file */
 		//puts("Added to the ned of file");
 		/* write variable to the end of file */
-		if(start_char == 0) fprintf(*file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
-		else fprintf(*file, "%c%s%c%s%c", start_char, var_name, delim_char, var_data, end_char);   /* with start char */
+		if(start_char == 0) fprintf(file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
+		else fprintf(file, "%c%s%c%s%c", start_char, var_name, delim_char, var_data, end_char);   /* with start char */
 
-		if(fflush(*file) != 0) return -1;   /* flush data to the file */
+		if(fflush(file) != 0) return -1;   /* flush data to the file */
 	}
 
 
-	if(flock(fileno(*file), LOCK_UN) != 0){   /* unlock file */
+	if(flock(fileno(file), LOCK_UN) != 0){   /* unlock file */
 		perror("flock");
 		return -1;
 	}

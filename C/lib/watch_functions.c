@@ -12,16 +12,22 @@ s_byte dast_init(){
 
 
 void dast_watch(char * filename, callback_func func){
+	char * pidfile_name;
+
 	dast_watched_size ++;
 
 	dast_watched_name = realloc(dast_watched_name, dast_watched_size * sizeof(char *));
 	dast_watched_callback =  realloc(dast_watched_callback, dast_watched_size * sizeof(callback_func));
-	
+	dast_watched_pidfile = realloc(dast_watched_pidfile, dast_watched_size * sizeof(FILE *));
+
 	dast_watched_name[dast_watched_size - 1] = malloc(strlen(filename) + 1);
 	strcpy(dast_watched_name[dast_watched_size - 1], filename);
 
 	dast_watched_callback[dast_watched_size - 1] = func;
 
+	pidfile_name = generate_pidfile_name(filename);
+	open_rw(pidfile_name, &dast_watched_pidfile[dast_watched_size - 1]);
+	free(pidfile_name);
 	//(*func)();
 }
 
@@ -67,10 +73,19 @@ void dast_run(){
 				if (iev->mask & IN_OPEN)		 printf("OPEN ");
 				if (iev->mask & IN_Q_OVERFLOW)	 printf("Q_OVERFLOW ");
 				if (iev->mask & IN_UNMOUNT)		 printf("UNMOUNT ");
-
-				if (iev->mask & IN_CLOSE_WRITE || iev->mask & IN_MODIFY){
+				
+				if(iev->mask & IN_CLOSE_WRITE){   // || iev->mask & IN_MODIFY
 					for(int a = 0; a < dast_watched_size; a ++){
-						if(strcmp(dast_watched_name[a], iev->name) == 0) (*dast_watched_callback[a])();
+						if(strcmp(dast_watched_name[a], iev->name) == 0){
+							pid_t pid = dast_read_pid(dast_watched_pidfile[a]);
+							printf("PID: %d\n", pid);
+							if(pid > 0){
+								if(pid != parent_pid) (*dast_watched_callback[a])();
+							}
+							else{
+								perror("read pid");
+							}
+						}
 					}
 					printf("CLOSE_WRITE ");
 
@@ -88,13 +103,15 @@ void dast_run(){
 
 	} else {			/* parent */
 		puts("parent");
+		printf("PID of parent %d\n", cpid);
+		parent_pid = cpid;
 		//exit(EXIT_SUCCESS);
 	}
 
 }
 
 s_byte dast_watch_dir(char * dir_name){
-	if(inotify_add_watch(ifd, dir_name, IN_CLOSE_WRITE | IN_CLOSE_NOWRITE | IN_MODIFY) < 0){  //IN_ALL_EVENTS
+	if(inotify_add_watch(ifd, dir_name, IN_CLOSE_WRITE) < 0){  // | IN_CLOSE_NOWRITE | IN_MODIFY
 		return -1;
 	}
 
@@ -105,12 +122,15 @@ s_byte dast_watch_dir(char * dir_name){
 void dast_cleanup(){
 	unsigned int pos = 0;
 
+	kill(0, SIGKILL);   /* kill child */
 	wait(NULL);			 /* Wait for child */
 
 	for(pos = 0; pos < sizeof(dast_watched_name); pos ++){
 		free(dast_watched_name[pos]);
+		fclose(dast_watched_pidfile[pos]);
 	}
 	free(dast_watched_name);
 
 	free(dast_watched_callback);
+	free(dast_watched_pidfile);
 }

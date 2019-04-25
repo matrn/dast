@@ -107,3 +107,25 @@ ssize_t get_pos(char * input, char character){
 		return (ssize_t)(rtn - input);   /* return position of first character in input string */
 	}
 }
+
+
+char * generate_pidfile_name(char * main_file_name){
+	char * cp1, * cp2, * dir, * filename, * final_path;
+
+	cp1 = strdup(main_file_name);
+	cp2 = strdup(main_file_name);
+	dir = dirname(cp1);
+	filename = basename(cp2);
+	
+
+	final_path = malloc(strlen(dir) + strlen(filename) + 7);
+
+	if(filename[0] == '.'){
+		sprintf(final_path, "%s/%s.dast", dir, filename);
+	}
+	else{
+		sprintf(final_path, "%s/.%s.dast", dir, filename);
+	}
+
+	return final_path;
+}
