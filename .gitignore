@@ -2,6 +2,8 @@ C/main
 C/t1
 C/t2
 C/test
+C/.test1.dast
+C/.test2.dast
 Python/
 C/*.so
 C/*.o
