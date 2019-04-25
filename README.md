@@ -82,7 +82,10 @@ Library can rewrite only part of file, you can get info about rewritten data fro
 
 ## ToDo
 
- - [ ] add ignoring inotify events from current programe
+ - [ ] C cleanup
+ - [ ] C refactoring
+ - [ ] README update
+ - [x] add ignoring inotify events from current programe
  - [ ] C example
  - [ ] Python support
  - [ ] Python example
