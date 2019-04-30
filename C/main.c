@@ -1,8 +1,9 @@
 #include <stdio.h>
-#include <unistd.h>		/* read() */
 
 #include <dast.h>
 #include <sys/file.h>
+
+#include <time.h>
 
 /*
 		struct inotify_event {
@@ -25,88 +26,112 @@ int main(int argc, char ** argv){
 	char * content;
 	ssize_t len = 0;
 	s_byte rtn;
+	long time = 0;
+
 
 	/* initialize dast */
 	if(dast_init() != 0){
 		perror("dast init");
+		exit(5);
 	}	
 	
 	/* add new directory to watch */
 	if(dast_watch_dir(".") != 0){
-		perror("inotify_add_watch");
-		return 5;
+		perror("dast_add_watch");
+		exit(5);
 	}
 
-	/*if(dast_watch_dir("/home/matej") < 0){
-		perror("inotify_add_watch");
-		return 5;
-	}
-	*/
 
 	/* add callbacks for specific files */
 	dast_watch("test1", callback_1);
 	dast_watch("test2", callback_2);
 
 	/* run inotify daemon */
-	dast_run();
+	if(dast_run() != 0){
+		perror("dast_run");
+		exit(5);
+	}
 
 	/* open files for read and write */
-	dast_open_rw("test1", &file1);
-	dast_open_rw("test2", &file2);
-	/*
-	dast_write_pid(32500, file2.pidfile);
-	printf("PID: %d\n", dast_read_pid(file2.pidfile));
-	*/
-	char dd[3] = {'$', ',', ';'};
-	
+	if(dast_open_rw("test1", &file1) != 0) perror("dast_open_rw");
+	if(dast_open_rw("test2", &file2) != 0) perror("dast_open_rw");
+
+
+	puts("\n-------------------read---------------------");
 	/* try to read test_var variable */
-	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != -1){
-		printf(" 'test_var' content >%s<\n", content);
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != UNKNOWN_VAR){
+		printf("'test_var' content >%s<\n", content);
 		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
 	}
 	else{
 		puts("Unknown variable 'test_var'");
 	}
+	puts("-------------------read---------------------");
 
-	puts("-------------------write---------------------");
-	if((rtn = dast_write_var(MLUD, "test_var", "Hello World!", file1)) != -1){
+
+	puts("\n-------------------write---------------------");
+	if((rtn = dast_write_var(OLPD, "test_var", "Hello World!", file1)) != ERROR){
 		if(rtn == 0) puts("rewritten only one line");
 		if(rtn == 1) puts("rewritten file from position of variable to the end of file");
 		if(rtn == 2) puts("added to the end of file");
-
-		//printf("Returned: %d\n", rtn);
 	}else{
 		perror("data_write_var");
 	}
 	puts("-------------------write---------------------");
 
+
+	puts("\n-------------------read---------------------");
 	/* try to read test_var variable */
-	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != -1){
-		printf(" 'test_var' content >%s<\n", content);
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != UNKNOWN_VAR){
+		printf("'test_var' content >%s<\n", content);
 		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
 	}
 	else{
-		puts("Unknown variable");
+		puts("Unknown variable 'test_var'");
 	}
-
-	char * tt;
-	dast_add_time('-', "cool", &tt);
-	printf("OUT >%s<\n", tt);
-	printf("IN str: %d\n", in_str(tt, 'Z'));
+	puts("-------------------read---------------------");
 
 
-	long tm = 0;
-	char * str;
-	//const char format = {'%', 'l', 'u', '-', '%', 'm', 's'};
-	rtn = dast_parse_time('-', "556-lol", &tm, &str);
-	printf("Returned: %d, Time >%lu< str >%s<\n", rtn, tm, str);
-	free(str);
-	free(tt);
-	//printf("Returned: %d\n", dast_write_var(MLUD, "test_var", "hey\nwhatsuuup? \n lol, coolll", &file1));
+	puts("\n-------------------writing variable with time---------------------");
+	puts("adding time to variable `test_var`");
+	dast_add_time(TD, "Hellow World with time stamp!", &content);
+	if(dast_write_var(OLPD, "test_var", content, file1) == ERROR) perror("dast_write_var");
+	free(content);
+	puts("-------------------writing variable with time---------------------");
 
-	//free(content);
+
+	puts("\n-------------------reading variable with time---------------------");
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != UNKNOWN_VAR){
+		char * data;
+		
+		if((rtn = dast_parse_time(TD, content, &time, &data)) < 0){
+			if(rtn == -1) puts("delimiter not found");
+			if(rtn == -2) puts("no time");
+			if(rtn == -3) perror("strtol");
+		}
+		else{
+			printf("'test_var' content >%s< and time %ld and it's ", data, time);
+
+			struct tm ts;
+			char buf[80];
+
+
+			// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+			ts = *localtime(&time);
+			strftime(buf, sizeof(buf), "%d.%m.%Y %H:%M:%S %Z", &ts);
+			printf("%s\n", buf);
+		}
+		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
+		free(data);
+		free(content);
+	}
+	else{
+		puts("Unknown variable 'test_var'");
+	}
+	puts("-------------------reading variable with time---------------------");
+	
 	
 	while(1){
 		//puts("tick");
@@ -125,15 +150,15 @@ int main(int argc, char ** argv){
 
 
 
-void callback_1(){
+void callback_1(pid_t pid){
 	puts("");
 	puts("-------");
-	puts("Callback_1");
+	printf("Callback_1 written by pid %d\n", pid);
 }
 
 
-void callback_2(){
+void callback_2(pid_t pid){
 	puts("");
 	puts("-------");
-	puts("Callback_2");
+	printf("Callback_2 written by pid %d\n", pid);
 }

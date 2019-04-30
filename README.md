@@ -16,7 +16,7 @@ Library will just read or write whole file without formatting.
 
 ## Read/Write whole file
 
-Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(char ** data, FILE ** file);`
+Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(char ** data, DSFILE dsfile);`
 
 ## Append to file
 
@@ -24,13 +24,13 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(
 
 ## Read one variable
 
-### C - `dast_read_var(char separators[3], char * var_name, char ** var_data, FILE ** file)`
+### C - `dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile)`
 
 #### Arguments:
  - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
  - `char *var_name` - pointer for name of the variable
  - `char ** var_data` - here will be saved pointer for read data. Before calling this function pointer must be clear and after function it should be freed using `free()` function.
- - `FILE ** file` - pointer for file which will be read by this function
+ - `DSFILE dsfile` - file structure which contains fd of file and pid file
 
 
 #### Return values
@@ -42,13 +42,13 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(
 
 ## Write one variable
 
-### C - `dast_write_var(char separators[3], char * var_name, char * var_data, FILE ** file)`
+### C - `dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile)`
 
 #### Arguments:
  - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
  - `char *var_name` - pointer for name of the variable
  - `char * var_data` - pointer for data which will be written to the file
- - `FILE ** file` - pointer for file
+ - `DSFILE dsfile` - file structure which contains fd of file and pid file
 
 This function can write only part of file, more about it and also about return values in the section [write realisation](#write-realisation)
 
@@ -71,6 +71,7 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  * OLPD = One Line Printable Delimiter - name is delimited from data using `=` and line is ended with `\n`, for example: `test_var=Hello World``\n`
  * OLUD = One Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and line is ended with `\n`, for example: `test_var``0x1E``This is useful for special =-+*/!. characters``\n`
  * MLUD = Multi Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and ended with `dec(03)` ASCII `end of text`, for example:  `test_var``0x1E``multi \n line \n data and normal characters =-+*/!``0x03`
+ * TD = Time Delimiter - for separating time from data, represented by `dec(30)` ASCII `record separator`
 
 *Note that mixing different separators can cause problems.*
 

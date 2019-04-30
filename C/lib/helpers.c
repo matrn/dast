@@ -18,7 +18,7 @@ s_byte dast_parse_time(char delimiter, char * input, long * time, char ** data){
 	  -3 = strtol error
 	  -2 = string doesn't contain time - delimiter is here but time not
 	  -1 = delimiter not found
-	  0 = success
+	  0  = success
 	*/
 
 	char * time_str;
