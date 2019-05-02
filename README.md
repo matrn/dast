@@ -35,8 +35,9 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(
 
 #### Return values
 
- - `-1`  = if variable doesn't exist
- - `0-X` = size of data if variable exists (X is ssize_t max value)
+ - `0-X` = size of data if variable exists (X is long max value)
+ - `-1`  = error
+ - `-2`  = unknown variable
 
 -----
 

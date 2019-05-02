@@ -90,7 +90,7 @@ pid_t dast_read_pid(FILE * file){
 	
 	rewind(file);
 
-	pid_str = malloc(10);
+	if((pid_str = malloc(10)) == NULL) return -1;
 
 	if(fgets(pid_str, 10, file) == NULL) return -1;
 	pid = atoi(pid_str);
@@ -158,11 +158,12 @@ https://ozh.github.io/ascii-tables/
 */
 
 
-ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile){
+long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile){
 	/*
 	 Return values:
-	 -1 = unknown variable
 	 0-X = size
+	 -1  = error
+	 -2  = unknown variable
 	 */
 	char start_char, delim_char, end_char;
 
@@ -220,7 +221,7 @@ ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, DSF
 			unsigned int len = delim_pos - start_pos;   /* length of name */
 
 			/* let's allocate memory and copy data */
-			name = malloc(len + 1);   /* allocate memory for name of variable, len + 1 for termination string */
+			if((name = malloc(len + 1)) == NULL) return -1;   /* allocate memory for name of variable, len + 1 for termination string */
 			strncpy(name, line + start_pos, len);   /* copy name of the variable to the variable name */
 			name[len] = 0;   /* save 0 to the end of string */
 			
@@ -235,7 +236,7 @@ ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, DSF
 				//printf("End position: %d\n", nread - delim_pos - 2);
 
 				/* let's allocate memory and copy data */
-				*var_data = malloc(len + 1);
+				if((*var_data = malloc(len + 1)) == NULL) return -1;
 				strcpy(*var_data, line + delim_pos + 1);   /* save data from variable - starting at delim_position + 1 */
 				//*var_data[len] = 0;   /* end of string, -2 is for delimiter character and because array starts at 0 */
 
@@ -254,7 +255,7 @@ ssize_t dast_read_var(char separators[3], char * var_name, char ** var_data, DSF
 
 	free(line);   /* free line variable */
 
-	return -1;
+	return -2;   /* unknown variable */
 }
 
 
@@ -263,9 +264,9 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 	/*
 	 Return values:
 	 -1 = some kind of error
-	 0 = rewritten only one line
-	 1 = rewritten file from line with variable to the end
-	 2 = variable added to the end of file
+	 0  = rewritten only one line
+	 1  = rewritten file from line with variable to the end
+	 2  = variable added to the end of file
 	 */
 
 	char start_char, delim_char, end_char;
@@ -346,7 +347,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 			unsigned int len = delim_pos - start_pos;   /* length of name */
 			
 			/* let's allocate memory and copy data */
-			name = malloc(len + 1);   /* allocate memory for name of variable, len + 1 for termination string */
+			if((name = malloc(len + 1)) == NULL) return -1;   /* allocate memory for name of variable, len + 1 for termination string */
 			strncpy(name, line + start_pos, len);   /* copy name of the variable to the variable name */
 			name[len] = 0;   /* save 0 to the end of string */
 			
@@ -400,7 +401,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 					fseek(file, file_pos + nread, SEEK_SET);   /* get to position after current var in file */
 
 					//printf("File pos: %ld, nread: %ld, length: %ld\n", file_pos, nread, data_length);
-					data_buf = malloc(data_length + 1);   /* allocate memory for data after this variable */
+					if((data_buf = malloc(data_length + 1)) == NULL) return -1;   /* allocate memory for data after this variable */
 	
 					if(data_buf){   /* check if we allocated something */
 						/*if(*/fread(data_buf, 1, data_length, file);/* == 0){

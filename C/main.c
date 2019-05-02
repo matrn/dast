@@ -43,8 +43,14 @@ int main(int argc, char ** argv){
 
 
 	/* add callbacks for specific files */
-	dast_watch("test1", callback_1);
-	dast_watch("test2", callback_2);
+	if(dast_watch("test1", callback_1) != 0){
+		perror("dast watch");
+		exit(5);
+	}
+	if(dast_watch("test2", callback_2) != 0){
+		perror("dast watch");
+		exit(5);
+	}
 
 	/* run inotify daemon */
 	if(dast_run() != 0){
@@ -59,13 +65,16 @@ int main(int argc, char ** argv){
 
 	puts("\n-------------------read---------------------");
 	/* try to read test_var variable */
-	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != UNKNOWN_VAR){
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) >= 0){
 		printf("'test_var' content >%s<\n", content);
 		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
 	}
-	else{
+	else if(len == UNKNOWN_VAR){
 		puts("Unknown variable 'test_var'");
+	}
+	else{
+		perror("dast read var");
 	}
 	puts("-------------------read---------------------");
 
@@ -96,7 +105,7 @@ int main(int argc, char ** argv){
 
 	puts("\n-------------------writing variable with time---------------------");
 	puts("adding time to variable `test_var`");
-	dast_add_time(TD, "Hellow World with time stamp!", &content);
+	if(dast_add_time(TD, "Hellow World with time stamp!", &content) != 0) perror("dast add time");
 	if(dast_write_var(OLPD, "test_var", content, file1) == ERROR) perror("dast_write_var");
 	free(content);
 	puts("-------------------writing variable with time---------------------");
@@ -107,9 +116,9 @@ int main(int argc, char ** argv){
 		char * data;
 		
 		if((rtn = dast_parse_time(TD, content, &time, &data)) < 0){
-			if(rtn == -1) puts("delimiter not found");
-			if(rtn == -2) puts("no time");
-			if(rtn == -3) perror("strtol");
+			if(rtn == -1) perror("dast parse time");
+			if(rtn == -2) puts("delimiter not found");
+			if(rtn == -3) puts("no time");
 		}
 		else{
 			printf("'test_var' content >%s< and time %ld and it's ", data, time);

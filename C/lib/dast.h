@@ -30,7 +30,7 @@ extern char TD;        /* time delimiter */
 
 #define ever ;;
 
-#define UNKNOWN_VAR -1   /* variables not found - used in dast_read_var */
+#define UNKNOWN_VAR -2   /* variables not found - used in dast_read_var */
 #define ERROR -1   /* some kind of error */
 #define OK 0   /* OK :) */
 #define W_ONE_LINE 0   /* rewritten only one line */
@@ -62,7 +62,7 @@ FILE ** dast_watched_pidfile;   /* pidfile for specifci file */
 /* -----watch_functions.c----- */
 s_byte dast_init();
 s_byte dast_watch_dir(char * dir_name);
-void dast_watch(char * filename, callback_func func);
+s_byte dast_watch(char * filename, callback_func func);
 
 s_byte dast_run();
 void dast_cleanup();
@@ -85,13 +85,13 @@ pid_t dast_read_pid(FILE * file);   /* for reading PID from file */
 s_byte dast_read(char ** data, DSFILE file);
 s_byte dast_write(char * data, DSFILE file);
 
-ssize_t dast_read_var(char separators[2], char * var_name, char ** var_data, DSFILE file);   /* reads variable */
+long dast_read_var(char separators[2], char * var_name, char ** var_data, DSFILE file);   /* reads variable */
 s_byte dast_write_var(char separators[2], char * var_name, char * var_data, DSFILE file);   /* writes variable */
 /* -----file_functions.c----- */
 
 
 /* -----helpers.c----- */
-void dast_add_time(char delimiter, char * data, char ** output);
+s_byte dast_add_time(char delimiter, char * data, char ** output);
 s_byte dast_parse_time(char delimiter, char * input, long * time, char ** data);
 
 byte in_str(char * input, char character);
