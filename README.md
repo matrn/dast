@@ -90,6 +90,7 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  - [x] C - add name to callback function
  - [ ] README update
  - [x] add ignoring inotify events from current programe
+ - [ ] add MLUD to C example
  - [ ] C example
  - [ ] Python support
  - [ ] Python example
