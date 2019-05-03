@@ -88,6 +88,8 @@ pid_t dast_read_pid(FILE * file){
 	char * pid_str;
 	pid_t pid;
 	
+
+	if(flock(fileno(file), LOCK_SH) != 0) return -1;   /* lock file with shared lock */
 	rewind(file);
 
 	if((pid_str = malloc(10)) == NULL) return -1;
@@ -96,6 +98,8 @@ pid_t dast_read_pid(FILE * file){
 	pid = atoi(pid_str);
 
 	free(pid_str);
+
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
 
 	return pid;		
 }
@@ -128,10 +132,7 @@ s_byte dast_write(char * data, DSFILE dsfile){
 		return -1;
 	}
 
-	if(flock(fileno(file), LOCK_UN) != 0){   /* unlock file */
-		perror("flock");
-		return -1;
-	}
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
 
 	return 0;
 }
@@ -180,6 +181,8 @@ long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE
 	delim_char = separators[1];
 	end_char = separators[2];
 
+
+	if(flock(fileno(file), LOCK_SH) != 0) return -1;   /* lock file with shared lock */
 
 	rewind(file);	/* rewind to the beginning of file */
 
@@ -241,6 +244,8 @@ long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE
 				//*var_data[len] = 0;   /* end of string, -2 is for delimiter character and because array starts at 0 */
 
 
+				if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+
 				free(name);   /* free name variable */
 				free(line);   /* free line variable */
 
@@ -253,7 +258,10 @@ long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE
 		}
 	}
 
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+
 	free(line);   /* free line variable */
+
 
 	return -2;   /* unknown variable */
 }
@@ -377,10 +385,8 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 					if(fflush(file) != 0) return -1;   /* flush file */
 
 
-					if(flock(fileno(file), LOCK_UN) != 0){   /* unlock file */
-						perror("flock");
-						return -1;
-					}
+					if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+					
 
 					/* free allocated memory */
 					//free(vars_all);
@@ -453,10 +459,8 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 	}
 
 
-	if(flock(fileno(file), LOCK_UN) != 0){   /* unlock file */
-		perror("flock");
-		return -1;
-	}
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+
 
 	/* free allocated memory (variables) */
 	free(line);

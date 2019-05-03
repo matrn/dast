@@ -84,8 +84,10 @@ Library can rewrite only part of file, you can get info about rewritten data fro
 
 ## ToDo
 
- - [ ] C cleanup
+ - [x] C cleanup
  - [ ] C refactoring
+ - [x] C - add flock for reading
+ - [x] C - add name to callback function
  - [ ] README update
  - [x] add ignoring inotify events from current programe
  - [ ] C example
