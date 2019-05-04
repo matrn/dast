@@ -95,10 +95,13 @@ s_byte dast_write_var(char separators[2], char * var_name, char * var_data, DSFI
 s_byte dast_add_time(char delimiter, char * data, char ** output);
 s_byte dast_parse_time(char delimiter, char * input, long * time, char ** data);
 
-byte in_str(char * input, char character);
+byte in_str(char * input, char character);   /* returns true or false */
 ssize_t get_pos(char * input, char character);
 
 char * generate_pidfile_name(char * main_file_name);
+
+byte startsWith(char * string, char * prefix);   /* returns true or false */
+byte dast_name_cmp(char * filename_in, char * filename_cmp);   /* returns true or false */
 /* -----helpers.c----- */
 
 

@@ -98,7 +98,7 @@ s_byte dast_run(){
 				
 				if(iev->mask & IN_CLOSE_WRITE){   // || iev->mask & IN_MODIFY
 					for(int a = 0; a < dast_watched_size; a ++){
-						if(strcmp(dast_watched_name[a], iev->name) == 0){
+						if(dast_name_cmp(iev->name, dast_watched_name[a]) == 0){   /* call speacial comparing function */
 							pid_t pid = dast_read_pid(dast_watched_pidfile[a]);
 
 							printf("PID: %d\n", pid);

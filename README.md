@@ -89,7 +89,7 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  - [ ] C refactoring
  - [x] C - add flock for reading
  - [x] C - add name to callback function
- - [ ] README update
+ - [ ] README update - dast_watch and functions like this
  - [x] add ignoring inotify events from current programe
  - [ ] add MLUD to C example
  - [ ] C example

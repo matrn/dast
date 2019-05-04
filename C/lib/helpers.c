@@ -140,3 +140,76 @@ char * generate_pidfile_name(char * main_file_name){
 
 	return final_path;
 }
+
+
+byte startsWith(char * string, char * prefix){
+	/* return values:
+	 1 = if string starts with prefix
+	 0 = if not
+	*/
+
+	return strncmp(prefix, string, strlen(prefix)) == 0;
+}
+
+
+byte dast_name_cmp(char * filename_in, char * filename_cmp){
+	/* return values:
+	 1 = if filename_in is filename_cmp
+	 0 = if not
+	*/
+	/* comparison:
+	 if filename_cmp ends with '*', after string before * can be anything
+	 if filename_cmp ends with "\*" (you have to use "\\*" because of escaping), it's like a normal string
+	 without * it's normal comparison
+	*/
+
+	//size_t len_in = 0;
+	size_t len_cmp = 0;
+
+	//len_in = strlen(filename_in);
+	len_cmp = strlen(filename_cmp);
+
+
+	/* if searched string is zero length:
+			if filename is zero length, return value will be 1 because "" is equal to ""
+			if not, return value will be 0
+	*/
+	if(len_cmp == 0) return strlen(filename_in) == 0;
+
+
+	/* if searched string is 1 character long:	
+	*/
+	if(len_cmp == 1){
+		if(filename_cmp[0] == '*') return 1;   /* if this character is *, filename_in can be everything, so return value will be 1 */
+		else return (strlen(filename_in) == 1 && filename_in[0] == filename_cmp[0]);   /* if not we will check if filename_in length is also 1 character and if these characters are equal */
+	}
+
+	/* if searched string has two and more characters length:
+	*/
+	if(len_cmp >= 2){
+		if(filename_cmp[len_cmp - 1] == '*'){   /* if searched string (filename_cmp) ends with '*' we will continue for next tests */
+			byte rtn = 0;   /* return value */
+
+			/* duplicate filename_cmp */
+			char * cmp_cp;			
+			cmp_cp = malloc(len_cmp);
+			strcpy(cmp_cp, filename_cmp);   /* copy filename_cmp including NULL terminator */
+
+			if(filename_cmp[len_cmp - 2] == '\\'){   /* if string contains escape sequence ('\'), we will remove last '*' and '\' replace with '*' */
+				cmp_cp[len_cmp - 2] = '*';   /* replace '\' with '*' */
+				cmp_cp[len_cmp - 1] = 0;   /* remove last character */
+				rtn = strcmp(filename_in, filename_cmp) == 0;   /* run strcmp() */
+			}
+			else{   /* finally we have there unescaped '*' */
+				cmp_cp[len_cmp - 1] = 0;   /* remove last character = '*' */
+				rtn = startsWith(filename_in, cmp_cp);   /* run startsWith() for comparsion */
+			}
+
+			free(cmp_cp);
+			return rtn;   /* return saved return value */
+		}
+		else return strcmp(filename_in, filename_cmp) == 0;   /* if not, we will just call strcmp() function */
+	}
+
+	return 0;   /* this situation can not occur, it's just for compiler */
+}
