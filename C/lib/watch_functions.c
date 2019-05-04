@@ -91,7 +91,7 @@ s_byte dast_run(){
 
 							printf("PID: %d\n", pid);
 							if(pid > 0){
-								if(pid != parent_pid) (*dast_watched_callback[a])(pid, iev->name);
+								if(pid != parent_pid) (*dast_watched_callback[a])(iev->name, pid);
 							}
 							else{
 								perror("read pid");
