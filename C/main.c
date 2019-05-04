@@ -24,7 +24,7 @@ void callback_2();
 int main(int argc, char ** argv){
 	DSFILE file1, file2;
 	char * content;
-	ssize_t len = 0;
+	long len = 0;
 	s_byte rtn;
 	long time = 0;
 

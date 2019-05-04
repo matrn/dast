@@ -26,8 +26,8 @@ typedef struct { FILE * file; FILE * pidfile; } DSFILE;   /* DSFILE - two files:
 extern char OLPD[3];   /* one-line printable delimiter */
 extern char OLUD[3];   /* one-line unprintable delimiter */
 extern char MLUD[3];   /* multi-line unprintable delimiter */
-extern char TPD;        /* time printable delimiter */ 
-extern char TUD;        /* time unprintable delimiter */ 
+extern char TPD;   /* time printable delimiter */ 
+extern char TUD;   /* time unprintable delimiter */ 
 
 #define ever ;;
 
