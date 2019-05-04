@@ -129,7 +129,7 @@ char * generate_pidfile_name(char * main_file_name){
 	filename = basename(cp2);
 	
 
-	if((final_path = malloc(strlen(dir) + strlen(filename) + 7)) == NULL) return NULL;
+	if((final_path = malloc(strlen(dir) + strlen(filename) + 8)) == NULL) return NULL;
 
 	if(filename[0] == '.'){
 		sprintf(final_path, "%s/%s.dast", dir, filename);
