@@ -1,11 +1,23 @@
 #include "dast.h"
 
+/*
+		struct inotify_event {
+			int			wd;			 Watch descriptor
+			uint32_t mask;		 Mask of events
+			uint32_t cookie;	 Unique cookie associating related
+												 events (for rename(2))
+			uint32_t len;			Size of 'name' field
+			char		 name[];	 Optional null-terminated name
+		};
+*/
 
 
 s_byte dast_init(){
-	if((ifd = inotify_init()) < 0) {
+	if((ifd = inotify_init()) < 0){
 		return -1;
 	}
+
+	parent_pid = getpid();   /* get parent pid */
 
 	return 0;
 }
