@@ -320,8 +320,8 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 
 
 	while((nread = getdelim(&line, &len, end_char, file)) != -1){   /* read file line by line */
-		unsigned int start_pos = 0;   /* for finding correct position of start character */ 
-		unsigned int delim_pos = 0;   /* for finding correct position of delimiter */ 
+		int start_pos = 0;   /* for finding correct position of start character */ 
+		int delim_pos = 0;   /* for finding correct position of delimiter */ 
 		
 		
 		/* -----get position of start character if it's specified----- */
