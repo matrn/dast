@@ -74,6 +74,7 @@ void dast_cleanup();
 s_byte open_rw(char * filename, FILE ** file);   /* open file for reading and writing */
 
 s_byte dast_open_rw(char * filename, DSFILE * file);   /* open file for reading and writing & pidfile for reading and writing */
+s_byte dast_open_rw_s(char * filename, char * pidfile_name, DSFILE * file);   /* specific - open file for reading and writing & pidfile for reading and writing with chooseable pidfile name */
 //s_byte dast_open_ra(char * filename, DSFILE * file);   /* open file for reading and appending */
 
 void dast_close(DSFILE dsfile);   /* close file & pidfile */

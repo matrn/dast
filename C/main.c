@@ -24,7 +24,7 @@ int main(int argc, char ** argv){
 	
 	/* add new directory to watch */
 	if(dast_watch_dir(".") != 0){
-		perror("dast_add_watch");
+		perror("dast add watch");
 		exit(5);
 	}
 
@@ -72,7 +72,7 @@ int main(int argc, char ** argv){
 		if(rtn == 1) puts("rewritten file from position of variable to the end of file");
 		if(rtn == 2) puts("added to the end of file");
 	}else{
-		perror("data_write_var");
+		perror("data write var");
 	}
 	puts("-------------------write---------------------");
 

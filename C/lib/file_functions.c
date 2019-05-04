@@ -57,6 +57,23 @@ s_byte dast_open_rw(char * filename, DSFILE * dsfile){
 }
 
 
+s_byte dast_open_rw_s(char * filename, char * pidfile_name, DSFILE * dsfile){   /* specific pidfile name */
+	/* return values:
+	 0  = OK
+	 -1 = error while openning
+	*/
+
+	DSFILE local;
+
+	if(open_rw(filename, &local.file) != 0) return -1;	
+	if(open_rw(pidfile_name, &local.pidfile) != 0) return -1;
+
+	*dsfile = local;
+
+	return 0;
+}
+
+
 void dast_close(DSFILE dsfile){
 	fclose(dsfile.file);
 	fclose(dsfile.pidfile);
