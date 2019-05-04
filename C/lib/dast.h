@@ -18,7 +18,7 @@
 
 
 typedef unsigned char byte;   /* number 0 - 255 */
-typedef char s_byte;   /* number -127 - 127 */
+typedef signed char s_byte;   /* number -127 - 127 */
 typedef void (*callback_func)(char * name, pid_t pid);   /* callback function */
 typedef struct { FILE * file; FILE * pidfile; } DSFILE;   /* DSFILE - two files: file for variables and pid file */
 
