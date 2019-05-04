@@ -5,7 +5,9 @@
 char OLPD[3] = { 00, '=', '\n' };   /* unused, =, newline */
 char OLUD[3] = { 00, 02, '\n' };    /* unused, start of text, newline */
 char MLUD[3] = { 01, 02, 03 };      /* start of heading, start of text, end of text */
-char TD = 30;   /* time dleimiter */
+
+char TPD = '-';   /* time printable delimiter */  
+char TUD = 30;   /* time unprintable delimiter */
 /* -----save delimiters to global variables----- */
 
 

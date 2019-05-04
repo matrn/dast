@@ -72,7 +72,8 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  * OLPD = One Line Printable Delimiter - name is delimited from data using `=` and line is ended with `\n`, for example: `test_var=Hello World``\n`
  * OLUD = One Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and line is ended with `\n`, for example: `test_var``0x1E``This is useful for special =-+*/!. characters``\n`
  * MLUD = Multi Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and ended with `dec(03)` ASCII `end of text`, for example:  `test_var``0x1E``multi \n line \n data and normal characters =-+*/!``0x03`
- * TD = Time Delimiter - for separating time from data, represented by `dec(30)` ASCII `record separator`
+ * TPD = Time Printable Delimiter - for separating time from data, represented by `-`
+ * TUD = Time Unprintable Delimiter - for separating time from data, represented by `dec(30)` ASCII `record separator`
 
 *Note that mixing different separators can cause problems.*
 

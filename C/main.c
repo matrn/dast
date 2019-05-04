@@ -105,7 +105,7 @@ int main(int argc, char ** argv){
 
 	puts("\n-------------------writing variable with time---------------------");
 	puts("adding time to variable `test_var`");
-	if(dast_add_time(TD, "Hellow World with time stamp!", &content) != 0) perror("dast add time");
+	if(dast_add_time(TPD, "Hellow World with time stamp!", &content) != 0) perror("dast add time");
 	if(dast_write_var(OLPD, "test_var", content, file1) == ERROR) perror("dast_write_var");
 	free(content);
 	puts("-------------------writing variable with time---------------------");
@@ -115,7 +115,7 @@ int main(int argc, char ** argv){
 	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != UNKNOWN_VAR){
 		char * data;
 		
-		if((rtn = dast_parse_time(TD, content, &time, &data)) < 0){
+		if((rtn = dast_parse_time(TPD, content, &time, &data)) < 0){
 			if(rtn == -1) perror("dast parse time");
 			if(rtn == -2) puts("delimiter not found");
 			if(rtn == -3) puts("no time");
