@@ -112,6 +112,7 @@ pid_t dast_read_pid(FILE * file){
 	rewind(file);
 	printf("fseek: %d\n", fseek(file, 0, SEEK_SET));
 	perror("fseek");
+	printf("character: %d\n", fgetc(file));
 	puts("B");
 	if((pid_str = malloc(10)) == NULL) return -1;
 	puts("C");
