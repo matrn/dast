@@ -113,7 +113,7 @@ pid_t dast_read_pid(FILE * file){
 	puts("B");
 	if((pid_str = malloc(10)) == NULL) return -1;
 	puts("C");
-	if(fgets(pid_str, 10, file) == NULL) printf("pid_str >%s<\n", pid_str);
+	if(fgets(pid_str, 10, file) == NULL) perror("fgets");
 	return -1;
 	pid = atoi(pid_str);
 	puts("D");
