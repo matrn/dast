@@ -110,6 +110,8 @@ pid_t dast_read_pid(FILE * file){
 	puts("A");
 	if(flock(fileno(file), LOCK_SH) != 0) return -1;   /* lock file with shared lock */
 	rewind(file);
+	printf("fsetpos: %d\n", fsetpos(file, 0));
+	perror("fsetpos");
 	puts("B");
 	if((pid_str = malloc(10)) == NULL) return -1;
 	puts("C");
