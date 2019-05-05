@@ -116,7 +116,7 @@ s_byte dast_run(){
 				if (iev->mask & IN_Q_OVERFLOW)	 printf("Q_OVERFLOW ");
 				if (iev->mask & IN_UNMOUNT)		 printf("UNMOUNT ");
 				
-				if(iev->mask & IN_CLOSE_WRITE){   // || iev->mask & IN_MODIFY
+				if(iev->mask & IN_MODIFY){   // || iev->mask & IN_MODIFY
 					printf("MODIFY name: %s\n", iev->name);
 					
 					for(int a = 0; a < dast_watched_size; a ++){
