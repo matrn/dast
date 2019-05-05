@@ -236,7 +236,7 @@ byte dast_name_cmp(char * filename_in, char * filename_cmp){
 
 			/* duplicate filename_cmp */
 			char * cmp_cp;			
-			cmp_cp = malloc(len_cmp);
+			cmp_cp = malloc(len_cmp + 1);
 			strcpy(cmp_cp, filename_cmp);   /* copy filename_cmp including NULL terminator */
 
 			if(filename_cmp[len_cmp - 2] == '\\'){   /* if string contains escape sequence ('\'), we will remove last '*' and '\' replace with '*' */

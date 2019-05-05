@@ -41,7 +41,7 @@ Function adds new inotify watch dir using `inotify_add_watch()`.
 Function for binding callback to specific filename.
 
 ### Arguments
- - `char * filename` - name of file - if filename ends with `*` (`\*` is escape sequence, you have to write `"\\*"` to string) after name before `*` can be anything, so if you setup filename as `test*`, `testFile` will trigger callback function.
+ - `char * filename` - name of file - if filename ends with `*` (`\*` is escape sequence, you have to write `"\\*"` to string) after name before `*` can be anything, so if you setup filename as `test*`, `testFile` or `test` or `test5` will trigger callback function.
  - `callback_func func` - callback function
 
 ### Return value
