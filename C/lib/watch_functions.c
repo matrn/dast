@@ -23,6 +23,20 @@ s_byte dast_init(){
 }
 
 
+s_byte dast_watch_dir(char * dir_name){
+	/* return values:
+	 0  = OK
+	 -1 = error
+	*/
+
+	if(inotify_add_watch(ifd, dir_name, IN_MODIFY) < 0){  // | IN_CLOSE_NOWRITE | IN_MODIFY
+		return -1;
+	}
+
+	return 0;
+}
+
+
 s_byte dast_watch(char * filename, callback_func func){
 	/* return values:
 	 0  = OK
@@ -103,7 +117,7 @@ s_byte dast_run(){
 				if (iev->mask & IN_UNMOUNT)		 printf("UNMOUNT ");
 				
 				if(iev->mask & IN_CLOSE_WRITE){   // || iev->mask & IN_MODIFY
-					printf("CLOSE_WRITE name: %s\n", iev->name);
+					printf("MODIFY name: %s\n", iev->name);
 					
 					for(int a = 0; a < dast_watched_size; a ++){
 						if(dast_name_cmp(iev->name, dast_watched_name[a])){   /* call speacial comparing function */
@@ -111,7 +125,7 @@ s_byte dast_run(){
 							pid_t pid;
 
 							if(dast_watched_pidfile[a] == NULL){   /* it's special file */
-								//puts("special file");
+								puts("special file");
 								FILE * fp;
 
 								if(dast_get_array_pidfile(iev->name, &fp) == 0){
@@ -123,7 +137,7 @@ s_byte dast_run(){
 								}														
 							}
 							else{   /* regular file */
-								//puts("reagular file");
+								puts("reagular file");
 								pid = dast_read_pid(dast_watched_pidfile[a]);
 							}
 
@@ -161,19 +175,6 @@ s_byte dast_run(){
 
 		parent_pid = cpid;
 		//exit(EXIT_SUCCESS);
-	}
-
-	return 0;
-}
-
-s_byte dast_watch_dir(char * dir_name){
-	/* return values:
-	 0  = OK
-	 -1 = error
-	*/
-
-	if(inotify_add_watch(ifd, dir_name, IN_CLOSE_WRITE) < 0){  // | IN_CLOSE_NOWRITE | IN_MODIFY
-		return -1;
 	}
 
 	return 0;
