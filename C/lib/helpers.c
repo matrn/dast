@@ -274,7 +274,7 @@ s_byte dast_get_array_pidfile(char * name, FILE ** pidfile){
 	}
 
 	/* pidfile is not in array */
-	puts("new pidfile");
+	//puts("new pidfile");
 	dast_pidfile_size ++;   /* add new row to the array */
 
 	if((dast_pidfile_name = realloc(dast_pidfile_name, dast_pidfile_size * sizeof(char *))) == NULL) return -1;

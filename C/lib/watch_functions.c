@@ -47,7 +47,7 @@ s_byte dast_watch(char * filename, callback_func func){
 		free(pidfile_name);
 	}
 	else{
-		puts("speacial filename");
+		//puts("special filename");
 		dast_watched_pidfile[dast_watched_size - 1] = NULL;
 	}
 
@@ -111,7 +111,7 @@ s_byte dast_run(){
 							pid_t pid;
 
 							if(dast_watched_pidfile[a] == NULL){   /* it's special file */
-								puts("special file");
+								//puts("special file");
 								FILE * fp;
 
 								if(dast_get_array_pidfile(iev->name, &fp) == 0){
@@ -123,7 +123,7 @@ s_byte dast_run(){
 								}														
 							}
 							else{   /* regular file */
-								puts("reagular file");
+								//puts("reagular file");
 								pid = dast_read_pid(dast_watched_pidfile[a]);
 							}
 
