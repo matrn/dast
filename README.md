@@ -5,35 +5,78 @@ dast - data sharing tool using inotify
 
 Library for sharing variables and data through files using inotify events.
 
+-----
+-----
+# __C__
 
-## File formats
 
-### Whole file
 
-Library will just read or write whole file without formatting.
+# Watch functions
+-----
+-----
 
-## File operations
 
-## Read/Write whole file
+## Initialize dast -  __`dast_init()`__
+This functions will setup inotify event.
 
-Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(char ** data, DSFILE dsfile);`
-
-## Append to file
+### Return value
+ - `0`  = OK
+ - `-1` = `inotify_init()` error
 
 -----
 
-## Read one variable
+## Watch new directory - __`dast_watch_dir(char * dir_name)`__
+Function adds new inotify watch dir using `inotify_add_watch()`.
 
-### C - `dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile)`
+### Arguments
+ - `char * dir_name` - name of watched directory
 
-#### Arguments:
+### Return value
+ - `0`  = OK
+ - `-1` = `inotify_add_watch()` error
+
+-----
+
+## Setup callback - `s_byte dast_watch(char * filename, callback_func func)`
+Function for binding callback to specific filename.
+
+### Arguments
+ - `char * filename` - name of file
+ - `callback_func func` - callback function
+
+### Return value
+ - `0`  = OK
+ - `-1` = error
+
+-----
+
+## Run inotify watch daemon - `dast_run()`
+This function will `fork()` code, in child process will be readed `inotify` events, function is non-blocking and it's necessary to call `dast_cleanup()` for killing child process.
+
+### Return value
+ - `0`  = OK
+ - `-1` = error
+
+-----
+
+## Cleanup variables and inotify events - `dast_cleanup()`
+Function for calling `free()` for global dast variables and destroying child. No value is returned.
+
+-----
+# File functions
+-----
+-----
+
+## Read one variable - `dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile)`
+
+### Arguments:
  - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
  - `char *var_name` - pointer for name of the variable
  - `char ** var_data` - here will be saved pointer for read data. Before calling this function pointer must be clear and after function it should be freed using `free()` function.
  - `DSFILE dsfile` - file structure which contains fd of file and pid file
 
 
-#### Return values
+### Return value
 
  - `0-X` = size of data if variable exists (X is long max value)
  - `-1`  = error
@@ -41,11 +84,9 @@ Functions `s_byte dast_read(char * data, FILE ** file);` and `s_byte dast_write(
 
 -----
 
-## Write one variable
+## Write one variable - `dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile)`
 
-### C - `dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile)`
-
-#### Arguments:
+### Arguments:
  - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
  - `char *var_name` - pointer for name of the variable
  - `char * var_data` - pointer for data which will be written to the file
@@ -58,7 +99,7 @@ This function can write only part of file, more about it and also about return v
 
 If function for writting variable to file is called, program will call `flock(fileno(*file), LOCK_EX);` to lock file. This lock is called before file read to prevent length change. After read & write program will call `flock(fileno(*file), LOCK_UN);` for unlocking file.
 
-Library can rewrite only part of file, you can get info about rewritten data from return value:
+Library can rewrite only part of file, you can get info about rewritten data from __return value__:
 
  - `-1` - error
  - `0` - rewritten only line with correct variable - this is only when existing and new lines have same line
@@ -67,7 +108,7 @@ Library can rewrite only part of file, you can get info about rewritten data fro
 
 ----
 
-### Predefined variables separators
+## Predefined variables separators
 
  * OLPD = One Line Printable Delimiter - name is delimited from data using `=` and line is ended with `\n`, for example: `test_var=Hello World``\n`
  * OLUD = One Line Unprintable Delimiter - name is delimited from data using `dec(02)` ASCII `start of text` and line is ended with `\n`, for example: `test_var``0x1E``This is useful for special =-+*/!. characters``\n`
@@ -77,11 +118,9 @@ Library can rewrite only part of file, you can get info about rewritten data fro
 
 *Note that mixing different separators can cause problems.*
 
-
-## Read all variables
-
-## Write all variables
-
+-----
+-----
+-----
 
 ## ToDo
 
