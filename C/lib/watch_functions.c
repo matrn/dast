@@ -129,7 +129,7 @@ s_byte dast_run(){
 								FILE * fp;
 
 								if(dast_get_array_pidfile(iev->name, &fp) == 0){
-									pid = dast_read_pid(fp);
+									pid = dast_read_pid(dast_pidfile_fp[dast_pidfile_size - 1]);
 								}
 								else{
 									perror("dast_get_array_pidfile");
