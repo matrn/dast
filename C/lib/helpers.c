@@ -152,6 +152,50 @@ byte startsWith(char * string, char * prefix){
 }
 
 
+byte dast_is_spc_name(char * name){
+	/* return values:
+	 1 = if name is speacial name
+	 0 = if not
+	*/
+	/* comparison:
+	 if name ends with '*', after string before * can be anything
+	 if name ends with "\*" (you have to use "\\*" because of escaping), it's like a normal string
+	 without * it's normal comparison
+	*/
+
+	//size_t len_in = 0;
+	size_t len = 0;
+
+	//len_in = strlen(filename_in);
+	len = strlen(name);
+
+
+	/* if name is zero length, it cannot be speacial name
+	*/
+	if(len == 0) return 0;
+
+
+	/* if searched string is 1 character long:	
+	*/
+	if(len == 1){
+		if(name[0] == '*') return 1;   /* if this character is *, filename can be everything, so return value will be 1 */
+		else return 0;   /* if not, it's normal name */
+	}
+
+	/* if searched string has two and more characters length:
+	*/
+	if(len >= 2){
+		if(name[len - 1] == '*'){   /* if name ends with '*' we will continue for next tests */
+			if(name[len - 2] != '\\') return 1;   /* unescaped '*' */
+			else return 0;   /* escaped '*' */
+		}
+		else return 0;   /* normal name */
+	}
+
+	return 0;   /* this situation can not occur, it's just for compiler */
+}
+
+
 byte dast_name_cmp(char * filename_in, char * filename_cmp){
 	/* return values:
 	 1 = if filename_in is filename_cmp
@@ -212,4 +256,38 @@ byte dast_name_cmp(char * filename_in, char * filename_cmp){
 	}
 
 	return 0;   /* this situation can not occur, it's just for compiler */
+}
+
+
+s_byte dast_get_array_pidfile(char * name, FILE ** pidfile){
+	/* return value:
+	 0  = OK
+	 -1 = error
+	*/
+	char * pidfile_name;
+
+	for(int a = 0; a < dast_pidfile_size; a ++){
+		if(strcmp(dast_pidfile_name[a], name) == 0){
+			*pidfile = dast_pidfile_fp[a];
+			return 0;	
+		}
+	}
+
+	/* pidfile is not in array */
+	puts("new pidfile");
+	dast_pidfile_size ++;   /* add new row to the array */
+
+	if((dast_pidfile_name = realloc(dast_pidfile_name, dast_pidfile_size * sizeof(char *))) == NULL) return -1;
+	if((dast_pidfile_fp = realloc(dast_pidfile_fp, dast_pidfile_size * sizeof(FILE *))) == NULL) return -1;
+	
+	if((dast_pidfile_name[dast_pidfile_size - 1] = malloc(strlen(iev->name) + 1)) == NULL) return -1;
+	strcpy(dast_pidfile_name[dast_pidfile_size - 1], name);   /* copy filename to the new allocated space */
+
+	if((pidfile_name = generate_pidfile_name(name)) == NULL) return -1;   /* generate pidfile name */
+	open_rw(pidfile_name, &dast_pidfile_fp[dast_pidfile_size - 1]);   /* open pidfile and save file descriptor of pidfile */
+	free(pidfile_name);
+
+	*pidfile = dast_pidfile_fp[dast_pidfile_size - 1];
+
+	return 0;
 }

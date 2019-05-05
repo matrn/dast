@@ -41,7 +41,7 @@ Function adds new inotify watch dir using `inotify_add_watch()`.
 Function for binding callback to specific filename.
 
 ### Arguments
- - `char * filename` - name of file
+ - `char * filename` - name of file - if filename ends with `*` (`\*` is escape sequence, you have to write `"\\*"` to string) after name before `*` can be anything, so if you setup filename as `test*`, `testFile` will trigger callback function.
  - `callback_func func` - callback function
 
 ### Return value
@@ -134,6 +134,6 @@ Library can rewrite only part of file, you can get info about rewritten data fro
  - [ ] C example
  - [ ] Python support
  - [ ] Python example
- - ~~modify dast_write_var for new type of delimiters and cleanup dast_read_var~~
+ - [x] modify dast_write_var for new type of delimiters and cleanup dast_read_var
 
 

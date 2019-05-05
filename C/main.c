@@ -30,7 +30,7 @@ int main(int argc, char ** argv){
 
 
 	/* add callbacks for specific files */
-	if(dast_watch("test1", callback_1) != 0){
+	if(dast_watch("test*", callback_1) != 0){
 		perror("dast watch");
 		exit(5);
 	}
@@ -149,7 +149,7 @@ int main(int argc, char ** argv){
 void callback_1(char * name, pid_t pid){
 	puts("");
 	puts("-------");
-	printf("Callback_2 written by pid %d to file %s\n", pid, name);
+	printf("Callback_1 written by pid %d to file %s\n", pid, name);
 }
 
 

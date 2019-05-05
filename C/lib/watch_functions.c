@@ -41,9 +41,15 @@ s_byte dast_watch(char * filename, callback_func func){
 
 	dast_watched_callback[dast_watched_size - 1] = func;   /* save callback */
 
-	if((pidfile_name = generate_pidfile_name(filename)) == NULL) return -1;   /* generate pidfile name */
-	open_rw(pidfile_name, &dast_watched_pidfile[dast_watched_size - 1]);   /* open pidfile and save file descriptor of pidfile */
-	free(pidfile_name);
+	if(!dast_is_spc_name(filename)){   /* if filename is not special */
+		if((pidfile_name = generate_pidfile_name(filename)) == NULL) return -1;   /* generate pidfile name */
+		open_rw(pidfile_name, &dast_watched_pidfile[dast_watched_size - 1]);   /* open pidfile and save file descriptor of pidfile */
+		free(pidfile_name);
+	}
+	else{
+		puts("speacial filename");
+		dast_watched_pidfile[dast_watched_size - 1] = NULL;
+	}
 
 	return 0;
 }
@@ -97,9 +103,29 @@ s_byte dast_run(){
 				if (iev->mask & IN_UNMOUNT)		 printf("UNMOUNT ");
 				
 				if(iev->mask & IN_CLOSE_WRITE){   // || iev->mask & IN_MODIFY
+					printf("CLOSE_WRITE name: %s\n", iev->name);
+					
 					for(int a = 0; a < dast_watched_size; a ++){
-						if(dast_name_cmp(iev->name, dast_watched_name[a]) == 0){   /* call speacial comparing function */
-							pid_t pid = dast_read_pid(dast_watched_pidfile[a]);
+						if(dast_name_cmp(iev->name, dast_watched_name[a])){   /* call speacial comparing function */
+							printf("comparison successfull name: %s\n", dast_watched_name[a]);
+							pid_t pid;
+
+							if(dast_watched_pidfile[a] == NULL){   /* it's special file */
+								puts("special file");
+								FILE * fp;
+
+								if(dast_get_array_pidfile(iev->name, &fp) == 0){
+									pid = dast_read_pid(fp);
+								}
+								else{
+									perror("dast_get_array_pidfile");
+									break;
+								}														
+							}
+							else{   /* regular file */
+								puts("reagular file");
+								pid = dast_read_pid(dast_watched_pidfile[a]);
+							}
 
 							printf("PID: %d\n", pid);
 							if(pid > 0){
@@ -108,9 +134,11 @@ s_byte dast_run(){
 							else{
 								perror("read pid");
 							}
+
+							break;   /* leave for loop */
 						}
 					}
-					printf("CLOSE_WRITE ");
+					
 
 				}
 				/*

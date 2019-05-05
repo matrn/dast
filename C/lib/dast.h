@@ -56,6 +56,11 @@ int dast_watched_size;   /* length of array */
 char ** dast_watched_name;   /* name of watched file */
 callback_func * dast_watched_callback;   /* callback */
 FILE ** dast_watched_pidfile;   /* pidfile for specifci file */
+
+int dast_pidfile_size;   /* length of array */
+char ** dast_pidfile_name;   /* name of pidfile */
+FILE ** dast_pidfile_fp;   /* file pointer of pidfile */
+
 /* -----arrays for saving name of watched file, callback for specifci file, pidfile for watched file----- */
 
 
@@ -102,7 +107,10 @@ ssize_t get_pos(char * input, char character);
 char * generate_pidfile_name(char * main_file_name);
 
 byte startsWith(char * string, char * prefix);   /* returns true or false */
+byte dast_is_spc_name(char * name);   /* returns true or false */
 byte dast_name_cmp(char * filename_in, char * filename_cmp);   /* returns true or false */
+
+s_byte dast_get_array_pidfile(char * name, FILE ** pidfile);
 /* -----helpers.c----- */
 
 
