@@ -47,7 +47,7 @@ s_byte dast_watch(char * filename, callback_func func){
 		free(pidfile_name);
 	}
 	else{
-		//puts("special filename");
+		puts("special filename");
 		dast_watched_pidfile[dast_watched_size - 1] = NULL;
 	}
 
@@ -135,7 +135,7 @@ s_byte dast_run(){
 								perror("read pid");
 							}
 
-							break;   /* leave for loop */
+							//break;   /* leave for loop */
 						}
 					}
 					
