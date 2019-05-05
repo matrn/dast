@@ -285,6 +285,7 @@ s_byte dast_get_array_pidfile(char * name, FILE ** pidfile){
 	strcpy(dast_pidfile_name[dast_pidfile_size - 1], name);   /* copy filename to the new allocated space */
 	puts("D");
 	if((pidfile_name = generate_pidfile_name(name)) == NULL) return -1;   /* generate pidfile name */
+	printf("PIDFILE name >%s<\n", pidfile_name);
 	open_rw(pidfile_name, &dast_pidfile_fp[dast_pidfile_size - 1]);   /* open pidfile and save file descriptor of pidfile */
 	free(pidfile_name);
 
