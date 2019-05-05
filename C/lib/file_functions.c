@@ -107,19 +107,19 @@ pid_t dast_read_pid(FILE * file){
 	char * pid_str;
 	pid_t pid;
 	
-
+	puts("A");
 	if(flock(fileno(file), LOCK_SH) != 0) return -1;   /* lock file with shared lock */
 	rewind(file);
-
+	puts("B");
 	if((pid_str = malloc(10)) == NULL) return -1;
-
+	puts("C");
 	if(fgets(pid_str, 10, file) == NULL) return -1;
 	pid = atoi(pid_str);
-
+	puts("D");
 	free(pid_str);
 
 	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
-
+	puts("E");
 	return pid;		
 }
 
