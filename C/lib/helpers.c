@@ -276,20 +276,18 @@ s_byte dast_get_array_pidfile(char * name, FILE ** pidfile){
 	/* pidfile is not in array */
 	puts("new pidfile");
 	dast_pidfile_size ++;   /* add new row to the array */
-	puts("A");
+
 	if((dast_pidfile_name = realloc(dast_pidfile_name, dast_pidfile_size * sizeof(char *))) == NULL) return -1;
-	puts("B");
 	if((dast_pidfile_fp = realloc(dast_pidfile_fp, dast_pidfile_size * sizeof(FILE *))) == NULL) return -1;
-	puts("C");
 	if((dast_pidfile_name[dast_pidfile_size - 1] = malloc(strlen(iev->name) + 1)) == NULL) return -1;
 	strcpy(dast_pidfile_name[dast_pidfile_size - 1], name);   /* copy filename to the new allocated space */
-	puts("D");
+	
 	if((pidfile_name = generate_pidfile_name(name)) == NULL) return -1;   /* generate pidfile name */
 	printf("PIDFILE name >%s<\n", pidfile_name);
 	open_rw(pidfile_name, &dast_pidfile_fp[dast_pidfile_size - 1]);   /* open pidfile and save file descriptor of pidfile */
 	free(pidfile_name);
 
 	*pidfile = dast_pidfile_fp[dast_pidfile_size - 1];
-	puts("E");
+
 	return 0;
 }

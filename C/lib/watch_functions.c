@@ -28,10 +28,19 @@ s_byte dast_watch_dir(char * dir_name){
 	 0  = OK
 	 -1 = error
 	*/
+	int wd;
 
-	if(inotify_add_watch(ifd, dir_name, IN_MODIFY) < 0){  // | IN_CLOSE_NOWRITE | IN_MODIFY
+	if((wd = inotify_add_watch(ifd, dir_name, IN_MODIFY)) < 0){  // | IN_CLOSE_NOWRITE | IN_MODIFY
 		return -1;
 	}
+
+	dast_dir_size ++;
+	if((dast_dir_name = realloc(dast_dir_name, dast_dir_size * sizeof(char * ))) == NULL) return -1;
+	if((dast_dir_wd = realloc(dast_dir_wd, dast_dir_size * sizeof(int))) == NULL) return -1;
+	if((dast_dir_name[dast_dir_size - 1] = malloc(strlen(dir_name) + 1)) == NULL) return -1;
+
+	strcpy(dast_dir_name[dast_dir_size - 1], dir_name);
+	dast_dir_wd[dast_dir_size - 1] = wd;
 
 	return 0;
 }
@@ -118,7 +127,16 @@ s_byte dast_run(){
 				
 				if(iev->mask & IN_MODIFY){   // || iev->mask & IN_MODIFY
 					printf("MODIFY name: %s\n", iev->name);
-					
+
+					s_byte rtn;
+					char * dir_name;
+					if((rtn = dast_get_dir(iev->wd, &dir_name)) == 0){
+						printf("Directory of file from current inotify event: >%s<\n", dir_name);
+						free(dir_name);
+					}
+					else if(rtn == -2) puts("Unknown WD");
+					else perror("dast_get_dir");
+
 					for(int a = 0; a < dast_watched_size; a ++){
 						if(dast_name_cmp(iev->name, dast_watched_name[a])){   /* call speacial comparing function */
 							printf("comparison successfull name: %s\n", dast_watched_name[a]);
@@ -127,7 +145,15 @@ s_byte dast_run(){
 							if(dast_watched_pidfile[a] == NULL){   /* it's special file */
 								puts("special file");
 								FILE * fp;
+								/*s_byte rtn;
+								char * dir_name;
+								if((rtn = dast_get_dir(iev->wd, &dir_name)) == 0){
+									printf("Directory of file from current inotify event: >%s<\n", dir_name);
+									free(dir_name);
+								}
 
+								else if(rtn == -2) puts("Unknown WD");
+								else perror("dast_get_dir");*/
 								if(dast_get_array_pidfile(iev->name, &fp) == 0){
 									pid = dast_read_pid(fp);
 								}
@@ -195,4 +221,40 @@ void dast_cleanup(){
 
 	free(dast_watched_callback);
 	free(dast_watched_pidfile);
+
+
+	for(pos = 0; pos < sizeof(dast_pidfile_name); pos ++){
+		free(dast_pidfile_name[pos]);
+		fclose(dast_pidfile_fp[pos]);
+	}
+	free(dast_pidfile_name);
+
+
+	for(pos = 0; pos < sizeof(dast_dir_name); pos ++){
+		free(dast_dir_name[pos]);
+	}
+	free(dast_dir_name);
+	free(dast_dir_wd);
+}
+
+
+s_byte dast_get_dir(int wd, char ** dir_name){
+	/* return value:
+	 0  = OK
+	 -1 = ERROR
+	 -2 = wd not found - unknown watch descriptor
+	*/
+
+	byte pos;
+
+	for(pos = 0; pos < dast_dir_size; pos ++){
+		if(wd == dast_dir_wd[pos]){
+			if((*dir_name = malloc(strlen(dast_dir_name[pos]) + 1)) == NULL) return -1;
+			strcpy(*dir_name, dast_dir_name[pos]);
+
+			return 0;
+		}
+	}
+
+	return -2;   /* wd not found */
 }

@@ -23,7 +23,7 @@ int main(int argc, char ** argv){
 	}	
 	
 	/* add new directory to watch */
-	if(dast_watch_dir(".") != 0){
+	if(dast_watch_dir("/home/matej") != 0){
 		perror("dast add watch");
 		exit(5);
 	}

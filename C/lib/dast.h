@@ -31,6 +31,7 @@ extern char TUD;   /* time unprintable delimiter */
 
 #define ever ;;
 
+#define UNKNOWN_WD -2   /* unknown watch descriptor */
 #define UNKNOWN_VAR -2   /* variables not found - used in dast_read_var */
 #define ERROR -1   /* some kind of error */
 #define OK 0   /* OK :) */
@@ -61,6 +62,9 @@ int dast_pidfile_size;   /* length of array */
 char ** dast_pidfile_name;   /* name of pidfile */
 FILE ** dast_pidfile_fp;   /* file pointer of pidfile */
 
+byte dast_dir_size;
+char ** dast_dir_name;
+int * dast_dir_wd;
 /* -----arrays for saving name of watched file, callback for specifci file, pidfile for watched file----- */
 
 
@@ -72,6 +76,8 @@ s_byte dast_watch(char * filename, callback_func func);
 
 s_byte dast_run();
 void dast_cleanup();
+
+s_byte dast_get_dir(int wd, char ** dir_name);
 /* -----watch_functions.c----- */
 
 
