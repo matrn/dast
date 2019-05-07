@@ -19,7 +19,7 @@
 
 typedef unsigned char byte;   /* number 0 - 255 */
 typedef signed char s_byte;   /* number -127 - 127 */
-typedef void (*callback_func)(char * name, pid_t pid);   /* callback function */
+typedef void (*callback_func)(char * dir_name, char * name, pid_t pid);   /* callback function */
 typedef struct { FILE * file; FILE * pidfile; } DSFILE;   /* DSFILE - two files: file for variables and pid file */
 
 
@@ -116,7 +116,7 @@ byte startsWith(char * string, char * prefix);   /* returns true or false */
 byte dast_is_spc_name(char * name);   /* returns true or false */
 byte dast_name_cmp(char * filename_in, char * filename_cmp);   /* returns true or false */
 
-s_byte dast_get_array_pidfile(char * name, FILE ** pidfile);
+s_byte dast_get_array_pidfile(char * dir_name, char * name, FILE ** pidfile);
 /* -----helpers.c----- */
 
 

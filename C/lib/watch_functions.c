@@ -129,32 +129,32 @@ s_byte dast_run(){
 					printf("MODIFY name: %s\n", iev->name);
 
 					s_byte rtn;
-					char * dir_name;
-					if((rtn = dast_get_dir(iev->wd, &dir_name)) == 0){
-						printf("Directory of file from current inotify event: >%s<\n", dir_name);
-						free(dir_name);
-					}
-					else if(rtn == -2) puts("Unknown WD");
-					else perror("dast_get_dir");
+					
 
 					for(int a = 0; a < dast_watched_size; a ++){
 						if(dast_name_cmp(iev->name, dast_watched_name[a])){   /* call speacial comparing function */
 							printf("comparison successfull name: %s\n", dast_watched_name[a]);
 							pid_t pid;
 
+							char * dir_name;
+							if((rtn = dast_get_dir(iev->wd, &dir_name)) == 0){
+								printf("Directory of file from current inotify event: >%s<\n", dir_name);
+								
+							}
+							else if(rtn == -2){
+								puts("Unknown WD");
+								break;
+							}
+							else{
+								perror("dast_get_dir");
+								break;
+							}
+
 							if(dast_watched_pidfile[a] == NULL){   /* it's special file */
 								puts("special file");
 								FILE * fp;
-								/*s_byte rtn;
-								char * dir_name;
-								if((rtn = dast_get_dir(iev->wd, &dir_name)) == 0){
-									printf("Directory of file from current inotify event: >%s<\n", dir_name);
-									free(dir_name);
-								}
-
-								else if(rtn == -2) puts("Unknown WD");
-								else perror("dast_get_dir");*/
-								if(dast_get_array_pidfile(iev->name, &fp) == 0){
+								
+								if(dast_get_array_pidfile(dir_name, iev->name, &fp) == 0){
 									pid = dast_read_pid(fp);
 								}
 								else{
@@ -169,12 +169,12 @@ s_byte dast_run(){
 
 							printf("PID: %d\n", pid);
 							if(pid > 0){
-								if(pid != parent_pid) (*dast_watched_callback[a])(iev->name, pid);
+								if(pid != parent_pid) (*dast_watched_callback[a])(dir_name, iev->name, pid);
 							}
 							else{
 								perror("read pid");
 							}
-
+							free(dir_name);
 							//break;   /* leave for loop */
 						}
 					}

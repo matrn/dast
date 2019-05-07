@@ -146,15 +146,15 @@ int main(int argc, char ** argv){
 
 
 
-void callback_1(char * name, pid_t pid){
+void callback_1(char * dir_name, char * name, pid_t pid){
 	puts("");
 	puts("-------");
-	printf("Callback_1 written by pid %d to file %s\n", pid, name);
+	printf("Callback_1 written by pid %d to file %s in directory %s\n", pid, name, dir_name);
 }
 
 
-void callback_2(char * name, pid_t pid){
+void callback_2(char * dir_name, char * name, pid_t pid){
 	puts("");
 	puts("-------");
-	printf("Callback_2 written by pid %d to file %s\n", pid, name);
+	printf("Callback_2 written by pid %d to file %s in directory %s\n", pid, name, dir_name);
 }

@@ -259,12 +259,13 @@ byte dast_name_cmp(char * filename_in, char * filename_cmp){
 }
 
 
-s_byte dast_get_array_pidfile(char * name, FILE ** pidfile){
+s_byte dast_get_array_pidfile(char * dir_name, char * name, FILE ** pidfile){
 	/* return value:
 	 0  = OK
 	 -1 = error
 	*/
 	char * pidfile_name;
+	char * name_with_dir;
 
 	for(int a = 0; a < dast_pidfile_size; a ++){
 		if(strcmp(dast_pidfile_name[a], name) == 0){
@@ -282,11 +283,15 @@ s_byte dast_get_array_pidfile(char * name, FILE ** pidfile){
 	if((dast_pidfile_name[dast_pidfile_size - 1] = malloc(strlen(iev->name) + 1)) == NULL) return -1;
 	strcpy(dast_pidfile_name[dast_pidfile_size - 1], name);   /* copy filename to the new allocated space */
 	
-	if((pidfile_name = generate_pidfile_name(name)) == NULL) return -1;   /* generate pidfile name */
+	name_with_dir = malloc(strlen(dir_name) + strlen(name) + 2);
+	sprintf(name_with_dir, "%s/%s", dir_name, name);
+	
+	if((pidfile_name = generate_pidfile_name(name_with_dir)) == NULL) return -1;   /* generate pidfile name */
 	printf("PIDFILE name >%s<\n", pidfile_name);
 	open_rw(pidfile_name, &dast_pidfile_fp[dast_pidfile_size - 1]);   /* open pidfile and save file descriptor of pidfile */
 	free(pidfile_name);
-
+	free(name_with_dir);
+	
 	*pidfile = dast_pidfile_fp[dast_pidfile_size - 1];
 
 	return 0;
