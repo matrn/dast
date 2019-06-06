@@ -9,17 +9,32 @@ Library for sharing variables and data through files using inotify events.
 # Content
  * [installation](#installation)
  * [C](#c)
-    * [Initialize dast - `dast_init()`](#initialize-dast)
-    * [Watch new directory - `dast_watch_dir(char * dir_name)`](#watch-new-directory)
-    * [Setup callback - `s_byte dast_watch(char * filename, callback_func func)`](#setup-callback)
+    * [Watch functions](#watch-functions)
+        * [Initialize dast - `dast_init()`](#initialize-dast)
+        * [Watch new directory - `dast_watch_dir(char * dir_name)`](#watch-new-directory)
+        * [Setup callback - `dast_watch(char * filename, callback_func func)`](#setup-callback)
+        * [Run inotify watch daemon - `dast_run()`](#run-inotify-watch-daemon)
+        * [Cleanup variables and inotify events - `dast_cleanup()`](#cleanup-variables-and-inotify-events)
+
+    * [File functions](#file-functions)
+        * [Read one variable - `dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile)`](#read-one-variable)
+        * [Write one variable - `dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile)`](#write-one-variable)
+        * [Write multiple variables - `dast_write_vars(char separators[3], dict * vars, DSFILE dsfile)`](#write-multiple-variables)
+        * [Write realisation](#write-realisation)
+        * [Predefined variables separators](#predefined-variables-separators)
+
 -----
------
+
+# Installation
+ - C - got to the dast directory, `cd C`, call `make` and run example with `./main`
+
+
+
 # __C__
 
 
 
 # Watch functions
------
 -----
 
 
@@ -47,7 +62,7 @@ Function adds new inotify watch dir using `inotify_add_watch()`.
 -----
 
 ## Setup callback
-__`s_byte dast_watch(char * filename, callback_func func)`__
+__`dast_watch(char * filename, callback_func func)`__
 Function for binding callback to specific filename.
 
 ### Arguments
@@ -60,7 +75,8 @@ Function for binding callback to specific filename.
 
 -----
 
-## Run inotify watch daemon - `dast_run()`
+## Run inotify watch daemon
+__`dast_run()`__
 This function will `fork()` code, in child process will be readed `inotify` events, function is non-blocking and it's necessary to call `dast_cleanup()` for killing child process.
 
 ### Return value
@@ -69,7 +85,8 @@ This function will `fork()` code, in child process will be readed `inotify` even
 
 -----
 
-## Cleanup variables and inotify events - `dast_cleanup()`
+## Cleanup variables and inotify events
+__`dast_cleanup()`__
 Function for calling `free()` for global dast variables and destroying child. No value is returned.
 
 -----
@@ -77,7 +94,8 @@ Function for calling `free()` for global dast variables and destroying child. No
 -----
 -----
 
-## Read one variable - `dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile)`
+## Read one variable
+__`dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE dsfile)`__
 
 ### Arguments:
  - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
@@ -94,7 +112,8 @@ Function for calling `free()` for global dast variables and destroying child. No
 
 -----
 
-## Write one variable - `dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile)`
+## Write one variable
+__`dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile)`__
 
 ### Arguments:
  - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
@@ -105,7 +124,25 @@ Function for calling `free()` for global dast variables and destroying child. No
 This function can write only part of file, more about it and also about return values in the section [write realisation](#write-realisation)
 
 
-### Write realisation
+## Write multiple variables
+__`dast_write_vars(char separators[3], dict * vars, DSFILE dsfile)`__
+
+### Arguments:
+ - `char separators[3]` - separators of variable, library has predefined separators already, more about it at [predefined variables separators](#predefined-variables-separators)
+ - `dict * vars` - dictionary of variables using functions from `dict.c`, usage:
+ ```
+ dict * vars;   /* declare dictionary */
+ if(dict_init(&vars) != 0) perror("dict_init");   /* initialize dictionary */
+ if(dict_set(vars, "key", "value") != 0) perror("dict_set");   /* set value to the dictionary indentified by key */
+ //here call function for writing variables to the file
+ dict_free(vars);   /* free dictionary */
+ ```
+ - `DSFILE dsfile` - file structure which contains fd of file and pid file
+
+This function can write only part of file, more about it and also about return values in the section [write realisation](#write-realisation)
+
+
+## Write realisation
 
 If function for writting variable to file is called, program will call `flock(fileno(*file), LOCK_EX);` to lock file. This lock is called before file read to prevent length change. After read & write program will call `flock(fileno(*file), LOCK_UN);` for unlocking file.
 

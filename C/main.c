@@ -150,6 +150,7 @@ int main(int argc, char ** argv){
 	}else{
 		perror("data_write_vars");
 	}
+	dict_free(vars);
 	puts("-------------------writing multiple variables---------------------");
 
 

@@ -528,7 +528,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 }
 
 
-s_byte dast_write_vars(char separators[3], dict * head, DSFILE dsfile){
+s_byte dast_write_vars(char separators[3], dict * vars, DSFILE dsfile){
 	/*
 	 Return values:
 	 -1 = some kind of error
@@ -539,7 +539,7 @@ s_byte dast_write_vars(char separators[3], dict * head, DSFILE dsfile){
 	FILE * file;
 
 	file = dsfile.file;
-	dict * current = head;
+	dict * current = vars;
 
 
 	if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
