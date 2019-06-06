@@ -15,12 +15,19 @@
 #include <time.h>   /* unix time stamp */
 #include <libgen.h>   /* basename, dirname */
 
+//#define DEBUG
+
 
 
 typedef unsigned char byte;   /* number 0 - 255 */
 typedef signed char s_byte;   /* number -127 - 127 */
 typedef void (*callback_func)(char * dir_name, char * name, pid_t pid);   /* callback function */
 typedef struct { FILE * file; FILE * pidfile; } DSFILE;   /* DSFILE - two files: file for variables and pid file */
+typedef struct node {
+	char * key;
+	char * value;
+	struct node * next;
+} dict;
 
 
 extern char OLPD[3];   /* one-line printable delimiter */
@@ -98,8 +105,9 @@ pid_t dast_read_pid(FILE * file);   /* for reading PID from file */
 s_byte dast_read(char ** data, DSFILE file);
 s_byte dast_write(char * data, DSFILE file);
 
-long dast_read_var(char separators[2], char * var_name, char ** var_data, DSFILE file);   /* reads variable */
-s_byte dast_write_var(char separators[2], char * var_name, char * var_data, DSFILE file);   /* writes variable */
+long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE file);   /* reads variable */
+s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE file);   /* writes variable */
+s_byte dast_write_vars(char separators[3], dict * vars, DSFILE file);   /* writes variables */
 /* -----file_functions.c----- */
 
 
@@ -118,6 +126,16 @@ byte dast_name_cmp(char * filename_in, char * filename_cmp);   /* returns true o
 
 s_byte dast_get_array_pidfile(char * dir_name, char * name, FILE ** pidfile);
 /* -----helpers.c----- */
+
+
+/* -----dict.c----- */
+s_byte dict_init(dict ** head);
+s_byte dict_set(dict * head, char * key, char * value);
+s_byte dict_get(dict * head, char * key, char ** value);
+void dict_print_all(dict * head);
+
+void dict_free(dict * head);
+/* -----dict.c----- */
 
 
 #endif
