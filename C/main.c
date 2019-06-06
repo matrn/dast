@@ -128,7 +128,22 @@ int main(int argc, char ** argv){
 	}
 	puts("-------------------reading variable with time---------------------");
 	
-	
+	puts("\n-------------------writing multiple variables---------------------");
+	dict * vars;
+	if(dict_init(&vars) != 0) perror("dict_init");
+	if(dict_set(vars, "var_A", "Oh,") != 0) perror("dict_set");
+	if(dict_set(vars, "var_B", "Hi") != 0) perror("dict_set");
+	if(dict_set(vars, "var_C", "Mark") != 0) perror("dict_set");
+	if(dict_set(vars, "wtf", "d̷̝͈͎̀͜a̷̻̘͔̬͈̣̓̄̈́͗ḓ̶̨͔̜͍͉̪͊̑̀̈̇͑ ̴̲͓̇̽̕w̷̙̋ͅa̶̗̅̀͌k̶̫͚̰̟͙̜͑̒̋̇̎̓ͅě̷̢̧̖͔̝͚̳͙̙̈̈́́̊͝ ̵͖̥̽̒͛̎ȕ̶̡̡̙̦̦͂́̀̔̉͂̕̚͜p̴̫̜͚͓̩̪̠͌̇͛̀̀̆̈́͠") != 0) perror("dict_set");
+
+	if((rtn = dast_write_vars(OLPD, vars, file1)) != ERROR){
+		if(rtn == 0) puts("writing multiple lines ok");
+	}else{
+		perror("data write var");
+	}
+	puts("-------------------writing multiple variables---------------------");
+
+
 	while(1){
 		//puts("tick");
 		sleep(1);

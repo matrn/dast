@@ -287,7 +287,7 @@ long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE
 
 
 
-s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile){
+s_byte dast_just_write_var(char separators[3], char * var_name, char * var_data, FILE * file){
 	/*
 	 Return values:
 	 -1 = some kind of error
@@ -313,9 +313,6 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 
 	size_t len_for_write = 0;   /* length of name and data */
 	
-	FILE * file;
-
-	file = dsfile.file;
 
 	start_char = separators[0];
 	delim_char = separators[1];
@@ -325,13 +322,14 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 	len_for_write = strlen(var_name) + strlen(var_data) + 2;   /* length of var_name and var_data + delimiter + end character */
 	if(start_char != 0) len_for_write ++;
 
+	
+	//if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
+	//	perror("flock");
+	//	return -1;
+	//}
+	
 
-	if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
-		perror("flock");
-		return -1;
-	}
-
-	dast_write_pid(parent_pid, dsfile.pidfile);
+	//dast_write_pid(parent_pid, dsfile.pidfile);
 
 	rewind(file);	/* rewind to the beginning of file */
 
@@ -401,10 +399,10 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 
 					fseek(file, file_pos + start_pos - ((start_char == 0) ? 0 : 1), SEEK_SET);   /* seek to the start position of this variable but keep garabge before start_char in file */
 					fputs(line, file);   /* write data to the file */
-					if(fflush(file) != 0) return -1;   /* flush file */
+					//if(fflush(file) != 0) return -1;   /* flush file */
 
 
-					if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+					//if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
 					
 
 					/* free allocated memory */
@@ -463,7 +461,7 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 		
 		fputs(data_buf, file);
 
-		if(fflush(file) != 0) return -1;   /* flush data to the file */
+		//if(fflush(file) != 0) return -1;   /* flush data to the file */
 		
 
 		ftruncate(fileno(file), ftell(file));   /* truncate file - end file */
@@ -474,11 +472,11 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 		if(start_char == 0) fprintf(file, "%s%c%s%c", var_name, delim_char, var_data, end_char);   /* without start_char */
 		else fprintf(file, "%c%s%c%s%c", start_char, var_name, delim_char, var_data, end_char);   /* with start char */
 
-		if(fflush(file) != 0) return -1;   /* flush data to the file */
+		//if(fflush(file) != 0) return -1;   /* flush data to the file */
 	}
 
 
-	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+	//if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
 
 
 	/* free allocated memory (variables) */
@@ -488,4 +486,85 @@ s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFI
 
 	if(!data_buf) return 2;   /* added to the end of file */
 	else return 1;   /* rewritten from variabůe position to the end */
+}
+
+
+
+
+
+s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile){
+	/*
+	 Return values:
+	 -1 = some kind of error
+	 0  = rewritten only one line
+	 1  = rewritten file from line with variable to the end
+	 2  = variable added to the end of file
+	 */
+
+	
+	FILE * file;
+
+	file = dsfile.file;
+	s_byte rtn = 0;
+
+
+	if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
+		perror("flock");
+		return -1;
+	}
+
+	dast_write_pid(parent_pid, dsfile.pidfile);
+
+
+	rtn = dast_just_write_var(separators, var_name, var_data, file);
+	
+
+	if(fflush(file) != 0) return -1;   /* flush data to the file */	
+
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+
+
+	return rtn;
+}
+
+
+s_byte dast_write_vars(char separators[3], dict * head, DSFILE dsfile){
+	/*
+	 Return values:
+	 -1 = some kind of error
+	 0  = ok
+	 */
+
+	
+	FILE * file;
+
+	file = dsfile.file;
+	dict * current = head;
+
+
+	if(flock(fileno(file), LOCK_EX) != 0){   /* lock file for other programs write */
+		perror("flock");
+		return -1;
+	}
+
+	dast_write_pid(parent_pid, dsfile.pidfile);
+
+	
+
+	while(1){
+		printf(">%s< : >%s<\n", current->key, current->value);
+		if(dast_just_write_var(separators, current->key, current->value, file) == -1) return -1;
+
+		if(current->next == NULL) break;
+		current = current->next;
+	}
+	
+	
+
+	if(fflush(file) != 0) return -1;   /* flush data to the file */	
+
+	if(flock(fileno(file), LOCK_UN) != 0) return -1;   /* unlock file */
+
+
+	return 0;
 }

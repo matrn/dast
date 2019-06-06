@@ -106,8 +106,10 @@ s_byte dast_read(char ** data, DSFILE file);
 s_byte dast_write(char * data, DSFILE file);
 
 long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE file);   /* reads variable */
+
+s_byte dast_just_write_var(char separators[3], char * var_name, char * var_data, FILE * file);   /* just writes variable without flock, fflush, pidwrite and etc. */
 s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE file);   /* writes variable */
-s_byte dast_write_vars(char separators[3], dict * vars, DSFILE file);   /* writes variables */
+s_byte dast_write_vars(char separators[3], dict * head, DSFILE file);   /* writes variables */
 /* -----file_functions.c----- */
 
 
