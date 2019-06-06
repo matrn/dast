@@ -9,8 +9,9 @@ Library for sharing variables and data through files using inotify events.
 # Content
  * [installation](#installation)
  * [C](#c)
-    * [Initialize dast -  __`dast_init()`__](#initialize-dast---dast_init
-        * wow, cool
+    * [Initialize dast - `dast_init()`](#initialize-dast)
+    * [Watch new directory - `dast_watch_dir(char * dir_name)`](#watch-new-directory)
+    * [Setup callback - `s_byte dast_watch(char * filename, callback_func func)`](#setup-callback)
 -----
 -----
 # __C__
@@ -22,7 +23,8 @@ Library for sharing variables and data through files using inotify events.
 -----
 
 
-## Initialize dast - `dast_init()`
+## Initialize dast
+__`dast_init()`__
 This functions will setup inotify event.
 
 ### Return value
@@ -31,7 +33,8 @@ This functions will setup inotify event.
 
 -----
 
-## Watch new directory - __`dast_watch_dir(char * dir_name)`__
+## Watch new directory
+__`dast_watch_dir(char * dir_name)`__
 Function adds new inotify watch dir using `inotify_add_watch()`.
 
 ### Arguments
@@ -43,7 +46,8 @@ Function adds new inotify watch dir using `inotify_add_watch()`.
 
 -----
 
-## Setup callback - `s_byte dast_watch(char * filename, callback_func func)`
+## Setup callback
+__`s_byte dast_watch(char * filename, callback_func func)`__
 Function for binding callback to specific filename.
 
 ### Arguments
