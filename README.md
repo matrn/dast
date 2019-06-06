@@ -9,7 +9,8 @@ Library for sharing variables and data through files using inotify events.
 # Content
  * [installation](#installation)
  * [C](#c)
-    * [Initialize dast -  __`dast_init()`__](#initialize-dast-__`dast_init()`__)
+    * [Initialize dast -  __`dast_init()`__](#initialize-dast---dast_init
+        * wow, cool
 -----
 -----
 # __C__
@@ -21,7 +22,7 @@ Library for sharing variables and data through files using inotify events.
 -----
 
 
-## Initialize dast -  __`dast_init()`__
+## Initialize dast - `dast_init()`
 This functions will setup inotify event.
 
 ### Return value
