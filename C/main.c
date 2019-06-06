@@ -18,24 +18,24 @@ int main(int argc, char ** argv){
 
 	/* initialize dast */
 	if(dast_init() != 0){
-		perror("dast init");
+		perror("dast_init");
 		exit(5);
 	}	
 	
 	/* add new directory to watch */
 	if(dast_watch_dir("/home/matej") != 0){
-		perror("dast add watch");
+		perror("dast_watch_dir");
 		exit(5);
 	}
 
 
 	/* add callbacks for specific files */
 	if(dast_watch("test*", callback_1) != 0){
-		perror("dast watch");
+		perror("dast_watch");
 		exit(5);
 	}
 	if(dast_watch("test2", callback_2) != 0){
-		perror("dast watch");
+		perror("dast_watch");
 		exit(5);
 	}
 
@@ -50,6 +50,7 @@ int main(int argc, char ** argv){
 	if(dast_open_rw("test2", &file2) != 0) perror("dast_open_rw");
 
 
+
 	puts("\n-------------------read---------------------");
 	/* try to read test_var variable */
 	if((len = dast_read_var(OLPD, "test_var", &content, file1)) >= 0){
@@ -61,9 +62,10 @@ int main(int argc, char ** argv){
 		puts("Unknown variable 'test_var'");
 	}
 	else{
-		perror("dast read var");
+		perror("dast_read_var");
 	}
 	puts("-------------------read---------------------");
+
 
 
 	puts("\n-------------------write---------------------");
@@ -72,27 +74,32 @@ int main(int argc, char ** argv){
 		if(rtn == 1) puts("rewritten file from position of variable to the end of file");
 		if(rtn == 2) puts("added to the end of file");
 	}else{
-		perror("data write var");
+		perror("data_write_var");
 	}
 	puts("-------------------write---------------------");
 
 
+
 	puts("\n-------------------read---------------------");
 	/* try to read test_var variable */
-	if((len = dast_read_var(OLPD, "test_var", &content, file1)) != UNKNOWN_VAR){
+	if((len = dast_read_var(OLPD, "test_var", &content, file1)) >= 0){
 		printf("'test_var' content >%s<\n", content);
 		//printf("LEN: %ld, reutrned len: %ld\n", strlen(content), len);
 		free(content);
 	}
-	else{
+	else if(len == UNKNOWN_VAR){
 		puts("Unknown variable 'test_var'");
+	}
+	else{
+		perror("dast_read_var");
 	}
 	puts("-------------------read---------------------");
 
 
+
 	puts("\n-------------------writing variable with time---------------------");
 	puts("adding time to variable `test_var`");
-	if(dast_add_time(TPD, "Hellow World with time stamp!", &content) != 0) perror("dast add time");
+	if(dast_add_time(TPD, "Hellow World with time stamp!", &content) != 0) perror("dast_add_time");
 	if(dast_write_var(OLPD, "test_var", content, file1) == ERROR) perror("dast_write_var");
 	free(content);
 	puts("-------------------writing variable with time---------------------");
@@ -103,7 +110,7 @@ int main(int argc, char ** argv){
 		char * data;
 		
 		if((rtn = dast_parse_time(TPD, content, &time, &data)) < 0){
-			if(rtn == -1) perror("dast parse time");
+			if(rtn == -1) perror("dast_parse_time");
 			if(rtn == -2) puts("delimiter not found");
 			if(rtn == -3) puts("no time");
 		}
@@ -128,6 +135,8 @@ int main(int argc, char ** argv){
 	}
 	puts("-------------------reading variable with time---------------------");
 	
+
+
 	puts("\n-------------------writing multiple variables---------------------");
 	dict * vars;
 	if(dict_init(&vars) != 0) perror("dict_init");
@@ -139,9 +148,10 @@ int main(int argc, char ** argv){
 	if((rtn = dast_write_vars(OLPD, vars, file1)) != ERROR){
 		if(rtn == 0) puts("writing multiple lines ok");
 	}else{
-		perror("data write var");
+		perror("data_write_vars");
 	}
 	puts("-------------------writing multiple variables---------------------");
+
 
 
 	while(1){

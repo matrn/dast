@@ -5,6 +5,11 @@ dast - data sharing tool using inotify
 
 Library for sharing variables and data through files using inotify events.
 
+
+# Content
+    * [installation](#installation)
+    * [C](#c)
+        * [Initialize dast -  __`dast_init()`__](#initialize-dast-__`dast_init()`__)
 -----
 -----
 # __C__
