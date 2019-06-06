@@ -111,7 +111,6 @@ s_byte dict_set(dict * head, char * key, char * value){
 }
 
 
-
 s_byte dict_get(dict * head, char * key, char ** value){
 	/* return value:
 		0  = all is OK
@@ -136,7 +135,6 @@ s_byte dict_get(dict * head, char * key, char ** value){
 
 	return -2;
 }
-
 
 
 void dict_print_all(dict * head){   /* function for printing all key & value from all nodes */

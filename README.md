@@ -7,7 +7,7 @@ Library for sharing variables and data through files using inotify events.
 
 
 # Content
- * [installation](#installation)
+ * [Installation](#installation)
  * [C](#c)
     * [Watch functions](#watch-functions)
         * [Initialize dast - `dast_init()`](#initialize-dast)

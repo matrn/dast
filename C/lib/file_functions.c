@@ -286,7 +286,6 @@ long dast_read_var(char separators[3], char * var_name, char ** var_data, DSFILE
 }
 
 
-
 s_byte dast_just_write_var(char separators[3], char * var_name, char * var_data, FILE * file){
 	/*
 	 Return values:
@@ -487,9 +486,6 @@ s_byte dast_just_write_var(char separators[3], char * var_name, char * var_data,
 	if(!data_buf) return 2;   /* added to the end of file */
 	else return 1;   /* rewritten from variabůe position to the end */
 }
-
-
-
 
 
 s_byte dast_write_var(char separators[3], char * var_name, char * var_data, DSFILE dsfile){

@@ -154,7 +154,6 @@ int main(int argc, char ** argv){
 	puts("-------------------writing multiple variables---------------------");
 
 
-
 	while(1){
 		//puts("tick");
 		sleep(1);
