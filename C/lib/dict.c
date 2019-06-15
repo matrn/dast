@@ -150,17 +150,18 @@ void dict_print_all(dict * head){   /* function for printing all key & value fro
 
 void dict_free(dict * head){
 	dict * current = head;
-	dict * next;
+	dict * tmp;
 
-	while(current->next != NULL){
+	while(1){
+		//printf(">%s< : >%s<\n", current->key, current->value);
+		tmp = current;
+		current = current->next;   /* save next pointer */
+
 		/* free key & value string variables */
-		free(current->key);
-		free(current->value);
+		free(tmp->key);
+		free(tmp->value);
+		free(tmp);
 
-		if(current->next != NULL){
-			next = current->next;   /* save next pointer */
-			free(current->next);   /* free next pointer */
-			current = next;   /* go to next pointer */
-		}
+		if(current == NULL) break;
 	}
 }
